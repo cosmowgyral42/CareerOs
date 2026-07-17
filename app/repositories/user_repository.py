@@ -33,6 +33,15 @@ def create(
 
     return user
 
+def update(db: Session, user: User, update_data: dict) -> User:
+    for field, value in update_data.items():
+        setattr(user, field, value)
+
+    db.commit()
+    db.refresh(user)
+
+    return user
+
 def update_last_login(db: Session, user: User) -> User:
     user.last_login_at = datetime.now(timezone.utc)
 
