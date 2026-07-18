@@ -4,6 +4,7 @@ from app.models.user import User
 from app.models.task import Task
 from app.models.project import Project
 from app.models.internship_application import InternshipApplication
+from app.models.resource import Resource
 
 __all__ = [
     "Base",
@@ -12,5 +13,5 @@ __all__ = [
     "Task",
     "Project",
     "InternshipApplication",
-
+    "Resource",
 ]
