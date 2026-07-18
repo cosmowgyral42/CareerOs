@@ -3,6 +3,7 @@ from app.models.goal import Goal
 from app.models.user import User
 from app.models.task import Task
 from app.models.project import Project
+from app.models.internship_application import InternshipApplication
 
 __all__ = [
     "Base",
@@ -10,5 +11,6 @@ __all__ = [
     "Goal",
     "Task",
     "Project",
+    "InternshipApplication",
 
 ]
