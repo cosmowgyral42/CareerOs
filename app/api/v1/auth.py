@@ -1,7 +1,13 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+)
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.deps import DatabaseSession
-from app.schemas.auth import TokenResponse, UserLogin, UserRegister
+from app.schemas.auth import TokenResponse, UserRegister
 from app.schemas.user import UserResponse
 from app.services.auth_service import login_user, register_user
 
@@ -33,13 +39,13 @@ def register(
     response_model=TokenResponse,
 )
 def login(
-    credentials: UserLogin,
     db: DatabaseSession,
+    form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> TokenResponse:
     access_token = login_user(
         db,
-        credentials.email,
-        credentials.password,
+        form_data.username,
+        form_data.password,
     )
 
     if access_token is None:
