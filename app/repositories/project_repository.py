@@ -57,3 +57,19 @@ def update(
 def delete(db: Session, project: Project) -> None:
     db.delete(project)
     db.commit()
+
+def count_by_user_and_status(
+    db: Session,
+    user_id: int,
+    status: str | None = None,
+) -> int:
+    from sqlalchemy import func
+
+    statement = select(func.count(Project.id)).where(
+        Project.user_id == user_id
+    )
+
+    if status is not None:
+        statement = statement.where(Project.status == status)
+
+    return db.scalar(statement) or 0

@@ -60,3 +60,15 @@ def update(
 def delete(db: Session, resource: Resource) -> None:
     db.delete(resource)
     db.commit()
+
+def count_by_user(
+    db: Session,
+    user_id: int,
+) -> int:
+    from sqlalchemy import func
+
+    statement = select(func.count(Resource.id)).where(
+        Resource.user_id == user_id
+    )
+
+    return db.scalar(statement) or 0

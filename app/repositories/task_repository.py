@@ -42,3 +42,19 @@ def update(db: Session, task: Task, data: dict) -> Task:
 def delete(db: Session, task: Task) -> None:
     db.delete(task)
     db.commit()
+
+def count_by_user_and_status(
+    db: Session,
+    user_id: int,
+    status: str | None = None,
+) -> int:
+    from sqlalchemy import func
+
+    statement = select(func.count(Task.id)).where(
+        Task.user_id == user_id
+    )
+
+    if status is not None:
+        statement = statement.where(Task.status == status)
+
+    return db.scalar(statement) or 0

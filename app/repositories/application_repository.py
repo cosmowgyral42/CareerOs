@@ -67,3 +67,23 @@ def delete(
 ) -> None:
     db.delete(application)
     db.commit()
+
+def count_by_user_and_status(
+    db: Session,
+    user_id: int,
+    status: str | None = None,
+) -> int:
+    from sqlalchemy import func
+
+    statement = select(
+        func.count(InternshipApplication.id)
+    ).where(
+        InternshipApplication.user_id == user_id
+    )
+
+    if status is not None:
+        statement = statement.where(
+            InternshipApplication.status == status
+        )
+
+    return db.scalar(statement) or 0
