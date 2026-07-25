@@ -61,3 +61,10 @@ class User(TimestampMixin, Base):
     last_login_at: Mapped[datetime | None] = mapped_column(
         nullable=True,
     )
+
+    timezone: Mapped[str] = mapped_column(
+    String(64),
+    nullable=False,
+    default="UTC",
+    server_default="UTC",
+)

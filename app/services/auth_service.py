@@ -21,11 +21,12 @@ def register_user(db: Session, user_data: UserRegister) -> User:
     hashed_password = hash_password(user_data.password)
 
     return user_repository.create(
-        db,
-        full_name=user_data.full_name,
-        email=user_data.email,
-        password_hash=hashed_password,
-    )
+    db,
+    full_name=user_data.full_name,
+    email=user_data.email,
+    password_hash=hashed_password,
+    timezone=user_data.timezone,
+)
 
 def authenticate_user(
     db: Session,

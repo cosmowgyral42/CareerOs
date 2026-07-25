@@ -20,12 +20,14 @@ def create(
     full_name: str,
     email: str,
     password_hash: str,
+    timezone: str = "UTC",
 ) -> User:
     user = User(
         full_name=full_name,
         email=email,
         password_hash=password_hash,
-    )
+        timezone=timezone,
+)
 
     db.add(user)
     db.commit()

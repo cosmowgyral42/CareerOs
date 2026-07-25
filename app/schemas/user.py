@@ -14,6 +14,7 @@ class UserResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    timezone: str
 
     model_config = ConfigDict(from_attributes=True)
 
