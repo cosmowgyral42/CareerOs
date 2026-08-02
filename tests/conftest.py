@@ -1,3 +1,7 @@
+import os
+
+os.environ["ENV_FILE"] = ".env.test"
+
 import uuid
 
 import pytest
