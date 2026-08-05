@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session
 from app.models.resume_analysis import ResumeAnalysis
 from app.repositories import resume_analysis_repository
 from app.utils.text_analysis import extract_resume_text
-from datetime import datetime, timezone
-
+from app.utils.timezone import get_user_day_range_utc
 from app.core.constants import DAILY_AI_ANALYSIS_LIMIT
+
 from app.core.exceptions import DailyAILimitExceededError
 from app.services.ai_resume_service import analyze_resume
-
+from app.repositories import user_repository
 
 def create_resume_analysis(
     db: Session,
@@ -68,20 +68,31 @@ def run_ai_analysis(
         return analysis
 
     # Calculate the beginning of the current UTC day.
-    now = datetime.now(timezone.utc)
+    user = user_repository.get_by_id(
+        db,
+        analysis.user_id,
+    )
 
-    start_of_day = now.replace(
-        hour=0,
-        minute=0,
-        second=0,
-        microsecond=0,
+    if user is None:
+       raise ValueError("User not found")
+
+    start_utc, end_utc = get_user_day_range_utc(
+        user.timezone
+    )
+
+    used_today = resume_analysis_repository.count_completed_between(
+        db,
+        analysis.user_id,
+        start_utc,
+        end_utc,
     )
 
     # Count this user's successful AI analyses today.
-    used_today = resume_analysis_repository.count_completed_since(
+    used_today = resume_analysis_repository.count_completed_between(
         db,
         analysis.user_id,
-        start_of_day,
+        start_utc,
+        end_utc,
     )
 
     # Block the request after two successful analyses.

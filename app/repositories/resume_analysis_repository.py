@@ -54,19 +54,21 @@ def get_all_by_user(
 
     return list(db.scalars(statement).all())
 
-def count_completed_since(
+def count_completed_between(
     db: Session,
     user_id: int,
-    since: datetime,
+    start_utc: datetime,
+    end_utc: datetime,
 ) -> int:
     statement = select(
         func.count(ResumeAnalysis.id)
     ).where(
         ResumeAnalysis.user_id == user_id,
         ResumeAnalysis.status == "completed",
-        ResumeAnalysis.updated_at >= since,
+        ResumeAnalysis.updated_at >= start_utc,
+        ResumeAnalysis.updated_at < end_utc,
     )
-
+    print(db.scalar(statement))
     return db.scalar(statement) or 0
 
 def save_ai_result(
