@@ -6,6 +6,7 @@ from app.models.project import Project
 from app.models.internship_application import InternshipApplication
 from app.models.resource import Resource
 from app.models.resume_analysis import ResumeAnalysis
+from .activity_log import ActivityLog
 
 __all__ = [
     "Base",
@@ -16,4 +17,5 @@ __all__ = [
     "InternshipApplication",
     "Resource",
     "ResumeAnalysis",
+    "ActivityLog",
 ]

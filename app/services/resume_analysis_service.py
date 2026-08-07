@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-
+from app.services.activity_log_services import log_activity
 from app.models.resume_analysis import ResumeAnalysis
 from app.repositories import resume_analysis_repository
 from app.utils.text_analysis import extract_resume_text
@@ -23,13 +23,26 @@ def create_resume_analysis(
         content,
     )
 
-    return resume_analysis_repository.create(
+    analysis = resume_analysis_repository.create(
         db,
         user_id=user_id,
         file_name=filename or "resume",
         job_description=job_description,
         extracted_text=extracted_text,
     )
+
+    log_activity(
+        db,
+        user_id=user_id,
+        action="resume_uploaded",
+        entity_type="resume_analysis",
+        entity_id=analysis.id,
+        payload={
+            "file_name": analysis.file_name,
+        },
+    )
+
+    return analysis
 
 
 def get_resume_analysis(
@@ -108,9 +121,22 @@ def run_ai_analysis(
     )
 
     # Store the validated AI result.
-    return resume_analysis_repository.save_ai_result(
+    analysis = resume_analysis_repository.save_ai_result(
         db,
         analysis,
         match_score=result.match_score,
         analysis_result=result.model_dump_json(),
     )
+
+    log_activity(
+        db,
+        user_id=analysis.user_id,
+        action="resume_analyzed",
+        entity_type="resume_analysis",
+        entity_id=analysis.id,
+        payload={
+            "match_score": analysis.match_score,
+        },
+    )
+
+    return analysis

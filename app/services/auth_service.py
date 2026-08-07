@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-
+from app.services.activity_log_services import log_activity
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -9,7 +9,10 @@ from app.models.user import User
 from app.repositories import user_repository
 from app.schemas.auth import UserRegister
 
-def register_user(db: Session, user_data: UserRegister) -> User:
+def register_user(
+    db: Session,
+    user_data: UserRegister,
+) -> User:
     existing_user = user_repository.get_by_email(
         db,
         user_data.email,
@@ -18,15 +21,30 @@ def register_user(db: Session, user_data: UserRegister) -> User:
     if existing_user:
         raise ValueError("Email is already registered")
 
-    hashed_password = hash_password(user_data.password)
+    hashed_password = hash_password(
+        user_data.password,
+    )
 
-    return user_repository.create(
-    db,
-    full_name=user_data.full_name,
-    email=user_data.email,
-    password_hash=hashed_password,
-    timezone=user_data.timezone,
-)
+    user = user_repository.create(
+        db,
+        full_name=user_data.full_name,
+        email=user_data.email,
+        password_hash=hashed_password,
+        timezone=user_data.timezone,
+    )
+
+    log_activity(
+        db,
+        user_id=user.id,
+        action="register",
+        entity_type="user",
+        entity_id=user.id,
+        payload={
+            "email": user.email,
+        },
+    )
+
+    return user
 
 def authenticate_user(
     db: Session,
@@ -62,6 +80,22 @@ def login_user(
     if user is None:
         return None
 
-    user_repository.update_last_login(db, user)
+    user_repository.update_last_login(
+        db,
+        user,
+    )
 
-    return create_access_token(user.id)
+    log_activity(
+        db,
+        user_id=user.id,
+        action="login",
+        entity_type="user",
+        entity_id=user.id,
+        payload={
+            "email": user.email,
+        },
+    )
+
+    return create_access_token(
+        user.id,
+    )
