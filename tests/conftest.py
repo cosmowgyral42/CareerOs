@@ -1,8 +1,7 @@
 import os
+import uuid
 
 os.environ["ENV_FILE"] = ".env.test"
-
-import uuid
 
 import pytest
 from fastapi.testclient import TestClient
@@ -22,4 +21,5 @@ def test_user():
         "full_name": "Test User",
         "email": f"test-{uuid.uuid4()}@example.com",
         "password": "TestPassword123!",
+        "timezone": "Asia/Kolkata",
     }
