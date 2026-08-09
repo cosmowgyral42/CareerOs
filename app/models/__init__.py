@@ -7,6 +7,7 @@ from app.models.internship_application import InternshipApplication
 from app.models.resource import Resource
 from app.models.resume_analysis import ResumeAnalysis
 from .activity_log import ActivityLog
+from app.models.career_target import CareerTarget
 
 __all__ = [
     "Base",
@@ -18,4 +19,5 @@ __all__ = [
     "Resource",
     "ResumeAnalysis",
     "ActivityLog",
+    "CareerTarget",
 ]
