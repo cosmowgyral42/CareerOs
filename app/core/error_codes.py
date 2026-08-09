@@ -1,0 +1,38 @@
+from enum import Enum
+
+
+class ErrorCode(str, Enum):
+    # Authentication
+    AUTH_INVALID_CREDENTIALS = "AUTH001"
+    AUTH_UNAUTHORIZED = "AUTH002"
+    AUTH_EMAIL_EXISTS = "AUTH003"
+
+    # AI
+    AI_PROVIDER_UNAVAILABLE = "AI001"
+    AI_DAILY_LIMIT = "AI002"
+    AI_INVALID_RESPONSE = "AI003"
+
+    # Resume
+    RESUME_NOT_FOUND = "RESUME001"
+    RESUME_INVALID_FILE = "RESUME002"
+
+    # Resources
+    RESOURCE_NOT_FOUND = "RESOURCE001"
+
+    # Goals
+    GOAL_NOT_FOUND = "GOAL001"
+
+    # Tasks
+    TASK_NOT_FOUND = "TASK001"
+
+    # Projects
+    PROJECT_NOT_FOUND = "PROJECT001"
+
+    # Applications
+    APPLICATION_NOT_FOUND = "APPLICATION001"
+
+    # Validation
+    VALIDATION_ERROR = "VALIDATION001"
+
+    # Server
+    INTERNAL_SERVER_ERROR = "SERVER001"

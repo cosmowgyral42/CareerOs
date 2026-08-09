@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-from app.services.activity_log_services import log_activity
+
+from app.core.exceptions import EmailAlreadyExistsError
+from app.core.logger import logger
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -8,18 +10,22 @@ from app.core.security import (
 from app.models.user import User
 from app.repositories import user_repository
 from app.schemas.auth import UserRegister
+from app.services.activity_log_services import log_activity
+
 
 def register_user(
     db: Session,
     user_data: UserRegister,
 ) -> User:
+    logger.info("REGISTER FUNCTION REACHED")
+
     existing_user = user_repository.get_by_email(
         db,
         user_data.email,
     )
 
     if existing_user:
-        raise ValueError("Email is already registered")
+        raise EmailAlreadyExistsError()
 
     hashed_password = hash_password(
         user_data.password,
@@ -31,6 +37,13 @@ def register_user(
         email=user_data.email,
         password_hash=hashed_password,
         timezone=user_data.timezone,
+    )
+
+    print(f"USER REGISTERED SUCCESSFULLY: {user.id}")
+
+    logger.info(
+        "User registered successfully",
+        extra={"user_id": user.id},
     )
 
     log_activity(
@@ -46,13 +59,16 @@ def register_user(
 
     return user
 
+
 def authenticate_user(
     db: Session,
     email: str,
     password: str,
 ) -> User | None:
-
-    user = user_repository.get_by_email(db, email)
+    user = user_repository.get_by_email(
+        db,
+        email,
+    )
 
     if user is None:
         return None
@@ -60,17 +76,20 @@ def authenticate_user(
     if not user.is_active:
         return None
 
-    if not verify_password(password, user.password_hash):
+    if not verify_password(
+        password,
+        user.password_hash,
+    ):
         return None
 
     return user
+
 
 def login_user(
     db: Session,
     email: str,
     password: str,
 ) -> str | None:
-
     user = authenticate_user(
         db,
         email,
@@ -79,6 +98,13 @@ def login_user(
 
     if user is None:
         return None
+
+    print(f"USER LOGIN SUCCESSFUL: {user.id}")
+
+    logger.info(
+        "User login successful",
+        extra={"user_id": user.id},
+    )
 
     user_repository.update_last_login(
         db,

@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from app.core.config import settings
 from app.core.exceptions import AIProviderUnavailableError
 from app.schemas.resume_analysis import AIResumeResult
-
+from app.core.logger import logger
 
 SYSTEM_PROMPT = """
 You are CareerOS Resume Analyzer.
@@ -46,7 +46,7 @@ def analyze_resume(
         raise AIProviderUnavailableError(
             "AI service is not configured"
         )
-
+    logger.info("Initializing AI provider")
     client = OpenAI(
         api_key=settings.openrouter_api_key,
         base_url="https://openrouter.ai/api/v1",
@@ -54,6 +54,7 @@ def analyze_resume(
     )
 
     try:
+        logger.info("Sending resume analysis request to AI provider")
         response = client.chat.completions.create(
             model=settings.openrouter_model,
             messages=[
@@ -96,7 +97,11 @@ def analyze_resume(
 
     try:
         data = json.loads(content)
-        return AIResumeResult.model_validate(data)
+        result = AIResumeResult.model_validate(data)
+
+        logger.info("AI resume analysis completed successfully")
+
+        return result
 
     except (json.JSONDecodeError, ValidationError) as exc:
         raise AIProviderUnavailableError(
