@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.core.database import SessionLocal
 
 
 @pytest.fixture
@@ -23,3 +24,12 @@ def test_user():
         "password": "TestPassword123!",
         "timezone": "Asia/Kolkata",
     }
+
+@pytest.fixture
+def db_session():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()

@@ -1,14 +1,17 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
-from app.services.activity_log_services import log_activity
+
 from app.models.resume_analysis import ResumeAnalysis
 from app.repositories import resume_analysis_repository
-from app.utils.text_analysis import extract_resume_text
-from app.utils.timezone import get_user_day_range_utc
-from app.core.constants import DAILY_AI_ANALYSIS_LIMIT
-
-from app.core.exceptions import DailyAILimitExceededError
+from app.services.activity_log_services import log_activity
 from app.services.ai_resume_service import analyze_resume
-from app.repositories import user_repository
+from app.services.ai_usage_service import (
+    refund_ai_call,
+    require_ai_call,
+)
+from app.utils.text_analysis import extract_resume_text
+
 
 def create_resume_analysis(
     db: Session,
@@ -66,6 +69,7 @@ def get_user_resume_analyses(
         user_id,
     )
 
+
 def run_ai_analysis(
     db: Session,
     analysis: ResumeAnalysis,
@@ -80,45 +84,30 @@ def run_ai_analysis(
     if analysis.status == "completed":
         return analysis
 
-    # Calculate the beginning of the current UTC day.
-    user = user_repository.get_by_id(
+    usage_date = datetime.now(timezone.utc).date()
+
+    # Reserve one shared CareerOS AI quota slot.
+    require_ai_call(
         db,
         analysis.user_id,
+        usage_date,
     )
 
-    if user is None:
-       raise ValueError("User not found")
-
-    start_utc, end_utc = get_user_day_range_utc(
-        user.timezone
-    )
-
-    used_today = resume_analysis_repository.count_completed_between(
-        db,
-        analysis.user_id,
-        start_utc,
-        end_utc,
-    )
-
-    # Count this user's successful AI analyses today.
-    used_today = resume_analysis_repository.count_completed_between(
-        db,
-        analysis.user_id,
-        start_utc,
-        end_utc,
-    )
-
-    # Block the request after two successful analyses.
-    if used_today >= DAILY_AI_ANALYSIS_LIMIT:
-        raise DailyAILimitExceededError(
-            "Daily AI analysis limit reached"
+    try:
+        # Call the AI provider.
+        result = analyze_resume(
+            analysis.extracted_text,
+            analysis.job_description,
         )
 
-    # Call OpenRouter through our isolated AI service.
-    result = analyze_resume(
-        analysis.extracted_text,
-        analysis.job_description,
-    )
+    except Exception:
+        # Provider failure → return the reserved slot.
+        refund_ai_call(
+            db,
+            analysis.user_id,
+            usage_date,
+        )
+        raise
 
     # Store the validated AI result.
     analysis = resume_analysis_repository.save_ai_result(

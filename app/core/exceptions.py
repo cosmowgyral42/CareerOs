@@ -40,3 +40,13 @@ class DailyAILimitExceededError(CareerOSError):
             message,
             ErrorCode.AI_DAILY_LIMIT,
         )
+
+class AIDailyQuotaExceededError(CareerOSError):
+    def __init__(
+        self,
+        message: str = "Daily AI usage limit reached",
+    ):
+        super().__init__(
+            message,
+            ErrorCode.AI_DAILY_LIMIT,
+        )

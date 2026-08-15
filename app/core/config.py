@@ -11,7 +11,8 @@ class Settings(BaseSettings):
 
     openrouter_api_key: str | None = None
     openrouter_model: str = "openrouter/free"
-
+    career_fit_daily_limit: int = 2
+    
     model_config = SettingsConfigDict(
         env_file=os.getenv("ENV_FILE", ".env"),
         env_file_encoding="utf-8",
