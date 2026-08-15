@@ -1,12 +1,10 @@
 from datetime import date
 from unittest.mock import patch
 from app.core.exceptions import AIProviderUnavailableError
-import pytest
 
 from app.models.ai_usage import AIUsage
 from app.models.career_target import CareerTarget
 from app.models.user import User
-from app.repositories import ai_usage_repository
 
 
 def test_career_recommendations_requires_auth(client):
@@ -228,11 +226,9 @@ def test_career_fit_ai_failure_refunds_quota(
 ):
     from unittest.mock import patch
 
-    from app.models.ai_usage import AIUsage
     from app.models.user_ai_usage import UserAIUsage
     from app.models.user import User
     from app.models.career_target import CareerTarget
-    from datetime import date
 
     register_response = client.post(
         "/api/v1/auth/register",

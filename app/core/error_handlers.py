@@ -4,8 +4,8 @@ from fastapi.responses import JSONResponse
 
 from app.core.error_codes import ErrorCode
 from app.core.exceptions import (
+    AIDailyQuotaExceededError,
     AIProviderUnavailableError,
-    DailyAILimitExceededError,
     EmailAlreadyExistsError,
 )
 
@@ -43,10 +43,10 @@ def register_exception_handlers(app: FastAPI) -> None:
             },
         )
 
-    @app.exception_handler(DailyAILimitExceededError)
-    async def daily_limit_exception_handler(
+    @app.exception_handler(AIDailyQuotaExceededError)
+    async def ai_daily_quota_exception_handler(
         request: Request,
-        exc: DailyAILimitExceededError,
+        exc: AIDailyQuotaExceededError,
     ):
         return JSONResponse(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -83,7 +83,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             content={
                 "error": {
                     "code": ErrorCode.INTERNAL_SERVER_ERROR,
-                    "message": exc.detail,
+                    "message": str(exc.detail),
                 }
             },
         )

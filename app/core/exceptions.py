@@ -31,15 +31,7 @@ class AIProviderUnavailableError(CareerOSError):
         )
 
 
-class DailyAILimitExceededError(CareerOSError):
-    def __init__(
-        self,
-        message: str = "Daily AI analysis limit reached",
-    ):
-        super().__init__(
-            message,
-            ErrorCode.AI_DAILY_LIMIT,
-        )
+
 
 class AIDailyQuotaExceededError(CareerOSError):
     def __init__(

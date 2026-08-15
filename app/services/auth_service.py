@@ -39,7 +39,7 @@ def register_user(
         timezone=user_data.timezone,
     )
 
-    print(f"USER REGISTERED SUCCESSFULLY: {user.id}")
+   
 
     logger.info(
         "User registered successfully",
@@ -99,7 +99,7 @@ def login_user(
     if user is None:
         return None
 
-    print(f"USER LOGIN SUCCESSFUL: {user.id}")
+    
 
     logger.info(
         "User login successful",

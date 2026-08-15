@@ -16,10 +16,6 @@ from app.schemas.resume_analysis import (
 )
 from app.services import resume_analysis_service
 
-from app.core.exceptions import (
-    AIProviderUnavailableError,
-    DailyAILimitExceededError,
-)
 
 router = APIRouter(
     prefix="/resume-analyses",
@@ -73,7 +69,7 @@ def analyze_resume_with_ai(
 
     if analysis is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Resume analysis not found",
         )
 
@@ -83,27 +79,17 @@ def analyze_resume_with_ai(
             analysis,
         )
 
-    except DailyAILimitExceededError as exc:
-        raise HTTPException(
-            status_code=429,
-            detail=(
-                "You have used today's 2 free AI analyses. "
-                "Please try again tomorrow."
-            ),
-        ) from exc
-
-    except AIProviderUnavailableError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=str(exc),
-        ) from exc
-
     except ValueError as exc:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
-    
+
+
+@router.get(
+    "",
+    response_model=list[ResumeAnalysisResponse],
+)
 def get_resume_analyses(
     db: DatabaseSession,
     current_user: CurrentUser,
@@ -131,7 +117,7 @@ def get_resume_analysis(
 
     if analysis is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Resume analysis not found",
         )
 

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.resume_analysis import ResumeAnalysis
 from datetime import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import func
 
 def create(
     db: Session,
@@ -68,7 +68,7 @@ def count_completed_between(
         ResumeAnalysis.updated_at >= start_utc,
         ResumeAnalysis.updated_at < end_utc,
     )
-    print(db.scalar(statement))
+    
     return db.scalar(statement) or 0
 
 def save_ai_result(
