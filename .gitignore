@@ -1,9 +1,36 @@
-.venv/
-__pycache__/
-*.pyc
-.env
-.pytest_cache/
-.coverage
-htmlcov/
+# ==============================
+# Python / Backend
+# ==============================
+
+careeros-backend/.venv/
+careeros-backend/__pycache__/
+careeros-backend/**/*.pyc
+careeros-backend/.env
+careeros-backend/.env.test
+careeros-backend/.pytest_cache/
+careeros-backend/.coverage
+careeros-backend/htmlcov/
+careeros-backend/.ruff_cache/
+
+# ==============================
+# Frontend / Node
+# ==============================
+
+careeros-frontend/node_modules/
+careeros-frontend/dist/
+careeros-frontend/dist-ssr/
+careeros-frontend/*.local
+
+# ==============================
+# Editors
+# ==============================
+
 .vscode/
-.env.test
+.idea/
+
+# ==============================
+# OS
+# ==============================
+
+.DS_Store
+Thumbs.db
