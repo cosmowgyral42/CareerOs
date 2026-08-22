@@ -1,27 +1,58 @@
-import apiClient from './apiClient';
+import apiRequest from './apiClient';
+import { setToken } from './authStorage';
 
-export function registerUser(payload) {
-  return apiClient('/api/v1/auth/register', {
+export async function registerUser(userData) {
+  return apiRequest('/auth/register', {
     method: 'POST',
-    body: payload,
+    body: JSON.stringify(userData),
   });
 }
 
-export function loginUser(email, password) {
-  const formData = new URLSearchParams();
+export async function loginUser(email, password) {
+  const body = new URLSearchParams();
 
-  formData.append('username', email);
-  formData.append('password', password);
+  body.append('username', email);
+  body.append('password', password);
 
-  return apiClient('/api/v1/auth/login', {
-    method: 'POST',
-    body: formData,
+  const response = await fetch(
+    'http://127.0.0.1:8000/api/v1/auth/login',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body,
+    },
+  );
+
+  if (!response.ok) {
+    let message = `Login failed with status ${response.status}.`;
+
+    try {
+      const errorData = await response.json();
+
+      if (errorData?.detail) {
+        message = errorData.detail;
+      }
+    } catch {
+      // Keep the default error message.
+    }
+
+    throw new Error(message);
+  }
+
+  const data = await response.json();
+
+  setToken(data.access_token);
+
+  return data;
+}
+
+export async function getCurrentUser() {
+  return apiRequest('/users/me', {
+    method: 'GET',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Bearer ${localStorage.getItem('careeros_access_token')}`,
     },
   });
-}
-
-export function getCurrentUser() {
-  return apiClient('/api/v1/users/me');
 }

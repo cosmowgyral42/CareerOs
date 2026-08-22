@@ -1,16 +1,16 @@
-export { default as apiClient } from './apiClient';
-
-export { getApiErrorMessage } from './apiError';
-
-export {
-  getCurrentUser,
-  loginUser,
-  registerUser,
-} from './authApi';
+export { default as apiRequest } from './apiClient';
 
 export {
   getToken,
-  hasToken,
+  setToken,
   removeToken,
-  saveToken,
+  hasToken,
 } from './authStorage';
+
+export {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+} from './authApi';
+
+export { getApiErrorMessage } from './apiError';

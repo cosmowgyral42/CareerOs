@@ -1,71 +1,33 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
-).replace(/\/$/, '');
+const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
-async function apiClient(path, options = {}) {
-  const {
-    method = 'GET',
-    body,
-    headers = {},
-    ...rest
-  } = options;
-
-  const token = localStorage.getItem('careos_token');
-
-  const requestHeaders = {
-    Accept: 'application/json',
-    ...headers,
-  };
-
-  const isFormData = body instanceof FormData;
-  const isUrlEncoded = body instanceof URLSearchParams;
-
-  if (body !== undefined && !isFormData && !isUrlEncoded) {
-    requestHeaders['Content-Type'] = 'application/json';
-  }
-
-  if (token) {
-    requestHeaders.Authorization = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers: requestHeaders,
-    body:
-      isFormData || isUrlEncoded
-        ? body
-        : body !== undefined
-          ? JSON.stringify(body)
-          : undefined,
-    ...rest,
+async function apiRequest(endpoint, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...(options.body instanceof FormData
+        ? {}
+        : { 'Content-Type': 'application/json' }),
+      ...options.headers,
+    },
   });
 
-  let data = null;
-
-  const contentType = response.headers.get('content-type');
-
-  if (contentType?.includes('application/json')) {
-    data = await response.json();
-  } else if (response.status !== 204) {
-    data = await response.text();
-  }
-
-  if (response.status === 401) {
-    localStorage.removeItem('careos_token');
-  }
-
   if (!response.ok) {
-    const error = new Error(
-      data?.detail || data?.message || 'Something went wrong.',
-    );
+    let message = `Request failed with status ${response.status}.`;
 
-    error.status = response.status;
-    error.data = data;
+    try {
+      const errorData = await response.json();
 
-    throw error;
+      if (errorData?.detail) {
+        message = errorData.detail;
+      }
+    } catch {
+      // Keep the default error message.
+    }
+
+    throw new Error(message);
   }
 
-  return data;
+  return response.json();
 }
 
-export default apiClient;
+export default apiRequest;

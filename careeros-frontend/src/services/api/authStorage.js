@@ -1,10 +1,10 @@
-const TOKEN_KEY = 'careeros_token';
+const TOKEN_KEY = 'careeros_access_token';
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-export function saveToken(token) {
+export function setToken(token) {
   localStorage.setItem(TOKEN_KEY, token);
 }
 

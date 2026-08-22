@@ -4,10 +4,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AuthInput from '../../components/auth/AuthInput';
 import AuthLayout from '../../components/auth/AuthLayout';
 import PasswordInput from '../../components/auth/PasswordInput';
+
 import {
   getApiErrorMessage,
   loginUser,
-  saveToken,
+
 } from '../../services/api';
 
 function Login() {
@@ -21,9 +22,11 @@ function Login() {
 
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
+
   const [successMessage] = useState(
     location.state?.message || '',
   );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -82,12 +85,11 @@ function Login() {
     setIsSubmitting(true);
 
     try {
-      const response = await loginUser(
+      await loginUser(
         form.email.trim(),
         form.password,
       );
 
-      saveToken(response.access_token);
 
       navigate('/dashboard', {
         replace: true,
