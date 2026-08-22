@@ -1,24 +1,42 @@
-const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+import { getToken } from './authStorage';
 
-async function apiRequest(endpoint, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+const API_BASE_URL = 'http://127.0.0.1:8000';
+
+async function request(path, options = {}) {
+  const token = getToken();
+
+  const headers = {
+    ...options.headers,
+  };
+
+  const isFormData = options.body instanceof FormData;
+  const isUrlEncoded = options.body instanceof URLSearchParams;
+
+  if (!isFormData && !isUrlEncoded) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
-    headers: {
-      ...(options.body instanceof FormData
-        ? {}
-        : { 'Content-Type': 'application/json' }),
-      ...options.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
-    let message = `Request failed with status ${response.status}.`;
+    let message = 'Something went wrong.';
 
     try {
-      const errorData = await response.json();
+      const data = await response.json();
 
-      if (errorData?.detail) {
-        message = errorData.detail;
+      if (typeof data.detail === 'string') {
+        message = data.detail;
+      } else if (Array.isArray(data.detail)) {
+        message = data.detail
+          .map((item) => item.msg)
+          .join(', ');
       }
     } catch {
       // Keep the default error message.
@@ -27,7 +45,55 @@ async function apiRequest(endpoint, options = {}) {
     throw new Error(message);
   }
 
+  if (response.status === 204) {
+    return null;
+  }
+
   return response.json();
 }
 
-export default apiRequest;
+const apiClient = {
+  get(path) {
+    return request(path, {
+      method: 'GET',
+    });
+  },
+
+  post(path, body) {
+    let requestBody = body;
+
+    if (
+      !(body instanceof FormData) &&
+      !(body instanceof URLSearchParams)
+    ) {
+      requestBody = JSON.stringify(body);
+    }
+
+    return request(path, {
+      method: 'POST',
+      body: requestBody,
+    });
+  },
+
+  put(path, body) {
+    return request(path, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  },
+
+  patch(path, body) {
+    return request(path, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    });
+  },
+
+  delete(path) {
+    return request(path, {
+      method: 'DELETE',
+    });
+  },
+};
+
+export default apiClient;

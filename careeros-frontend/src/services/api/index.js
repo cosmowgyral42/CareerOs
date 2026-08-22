@@ -1,16 +1,16 @@
-export { default as apiRequest } from './apiClient';
+export {
+  getCurrentUser,
+  loginUser,
+  registerUser,
+} from './authapi';
 
 export {
+  getDashboard,
+} from './dashboardAPI';
+
+export {
+  hasToken,
   getToken,
   setToken,
   removeToken,
-  hasToken,
 } from './authStorage';
-
-export {
-  registerUser,
-  loginUser,
-  getCurrentUser,
-} from './authApi';
-
-export { getApiErrorMessage } from './apiError';

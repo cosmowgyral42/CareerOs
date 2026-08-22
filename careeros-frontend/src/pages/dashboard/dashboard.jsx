@@ -1,12 +1,74 @@
+import { useEffect, useState } from 'react';
+
+import { getDashboard } from '../../services/api';
 import { useAuth } from '../../context/useAuth';
 
 function Dashboard() {
   const { user } = useAuth();
 
-  const firstName = user?.full_name?.split(' ')[0] || 'there';
+  const [dashboard, setDashboard] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const firstName =
+    user?.full_name?.split(' ')[0] || 'there';
+
+  useEffect(() => {
+    async function loadDashboard() {
+      try {
+        setIsLoading(true);
+        setError('');
+
+        const data = await getDashboard();
+
+        setDashboard(data);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Unable to load your dashboard.',
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadDashboard();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" />
+
+          <p className="mt-4 text-sm font-medium text-slate-500">
+            Loading your CareerOS workspace...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-2xl rounded-2xl border border-red-200 bg-red-50 p-6">
+        <h2 className="font-bold text-red-900">
+          Unable to load dashboard
+        </h2>
+
+        <p className="mt-2 text-sm leading-6 text-red-700">
+          {error}
+        </p>
+      </div>
+    );
+  }
+
+  const stats = dashboard?.stats ?? {};
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
+      {/* Header */}
       <section>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-600">
           CareerOS workspace
@@ -22,48 +84,55 @@ function Dashboard() {
         </p>
       </section>
 
+      {/* Overview */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <OverviewCard
-          label="Career progress"
-          value="72%"
-          description="Overall progress"
-        />
-
-        <OverviewCard
           label="Active goals"
-          value="04"
-          description="Goals in progress"
+          value={stats.active_goals ?? 0}
+          description={`${stats.completed_goals ?? 0} completed`}
         />
 
         <OverviewCard
-          label="Open tasks"
-          value="12"
-          description="Tasks remaining"
+          label="Pending tasks"
+          value={stats.pending_tasks ?? 0}
+          description={`${stats.completed_tasks ?? 0} completed`}
+        />
+
+        <OverviewCard
+          label="Active projects"
+          value={stats.active_projects ?? 0}
+          description={`${stats.total_projects ?? 0} total projects`}
         />
 
         <OverviewCard
           label="Applications"
-          value="08"
-          description="Active applications"
+          value={stats.active_applications ?? 0}
+          description={`${stats.total_applications ?? 0} total applications`}
         />
       </section>
 
+      {/* Career overview */}
       <section className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <CareerProgress />
+        <CareerProgress stats={stats} />
 
         <AiInsight />
       </section>
 
+      {/* Activity */}
       <section className="grid gap-6 lg:grid-cols-2">
-        <RecentTasks />
+        <CareerActivity stats={stats} />
 
-        <RecentApplications />
+        <ResourceOverview stats={stats} />
       </section>
     </div>
   );
 }
 
-function OverviewCard({ label, value, description }) {
+function OverviewCard({
+  label,
+  value,
+  description,
+}) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <p className="text-sm font-medium text-slate-500">
@@ -87,7 +156,15 @@ function OverviewCard({ label, value, description }) {
   );
 }
 
-function CareerProgress() {
+function CareerProgress({ stats }) {
+  const totalGoals = stats.total_goals ?? 0;
+  const completedGoals = stats.completed_goals ?? 0;
+
+  const progress =
+    totalGoals > 0
+      ? Math.round((completedGoals / totalGoals) * 100)
+      : 0;
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4">
@@ -97,45 +174,48 @@ function CareerProgress() {
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            Backend Engineer
+            Your current career activity
           </p>
         </div>
 
         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-          On track
+          {progress > 0 ? 'On track' : 'Getting started'}
         </span>
       </div>
 
       <div className="mt-8">
         <div className="flex items-center justify-between text-sm">
           <span className="font-medium text-slate-600">
-            Overall readiness
+            Goal completion
           </span>
 
           <span className="font-bold text-slate-900">
-            72%
+            {progress}%
           </span>
         </div>
 
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full w-[72%] rounded-full bg-linear-to-r from-violet-500 to-indigo-500" />
+          <div
+            className="h-full rounded-full bg-linear-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <ProgressItem
-          label="Skills"
-          value="78%"
+          label="Goals"
+          value={stats.total_goals ?? 0}
         />
 
         <ProgressItem
           label="Projects"
-          value="65%"
+          value={stats.total_projects ?? 0}
         />
 
         <ProgressItem
-          label="Applications"
-          value="54%"
+          label="Resources"
+          value={stats.total_resources ?? 0}
         />
       </div>
     </section>
@@ -171,8 +251,8 @@ function AiInsight() {
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Strengthen your backend portfolio with one production-quality
-          project and document the engineering decisions behind it.
+          Use your goals, skills, projects, and applications
+          to make smarter career decisions with CareerOS.
         </p>
 
         <button
@@ -186,103 +266,84 @@ function AiInsight() {
   );
 }
 
-function RecentTasks() {
-  const tasks = [
-    'Finish API documentation',
-    'Build authentication UI',
-    'Add PostgreSQL project',
-  ];
-
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">
-            Today&apos;s focus
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Keep the important work moving.
-          </p>
-        </div>
-
-        <span className="text-sm font-semibold text-violet-600">
-          3 tasks
-        </span>
-      </div>
-
-      <div className="mt-6 space-y-3">
-        {tasks.map((task) => (
-          <div
-            key={task}
-            className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4"
-          >
-            <div className="h-2.5 w-2.5 rounded-full bg-violet-500" />
-
-            <p className="text-sm font-medium text-slate-700">
-              {task}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function RecentApplications() {
+function CareerActivity({ stats }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div>
         <h2 className="text-lg font-bold text-slate-900">
-          Application pipeline
+          Career activity
         </h2>
 
         <p className="mt-1 text-sm text-slate-500">
-          A quick view of your current opportunities.
+          A quick overview of your current workload.
         </p>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
-        <PipelineItem
-          label="Applied"
-          value="04"
+      <div className="mt-6 space-y-3">
+        <ActivityRow
+          label="Pending tasks"
+          value={stats.pending_tasks ?? 0}
         />
 
-        <PipelineItem
-          label="Interview"
-          value="02"
+        <ActivityRow
+          label="Active projects"
+          value={stats.active_projects ?? 0}
         />
 
-        <PipelineItem
-          label="Offer"
-          value="01"
+        <ActivityRow
+          label="Active applications"
+          value={stats.active_applications ?? 0}
         />
-      </div>
-
-      <div className="mt-6 rounded-xl bg-slate-50 p-4">
-        <p className="text-xs font-medium text-slate-500">
-          Current focus
-        </p>
-
-        <p className="mt-1 text-sm font-semibold text-slate-800">
-          Backend engineering roles
-        </p>
       </div>
     </section>
   );
 }
 
-function PipelineItem({ label, value }) {
+function ActivityRow({ label, value }) {
   return (
-    <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-center">
-      <p className="text-xl font-bold text-slate-900">
-        {value}
-      </p>
+    <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-4">
+      <div className="flex items-center gap-3">
+        <div className="h-2.5 w-2.5 rounded-full bg-violet-500" />
 
-      <p className="mt-1 text-xs font-medium text-slate-500">
-        {label}
-      </p>
+        <p className="text-sm font-medium text-slate-700">
+          {label}
+        </p>
+      </div>
+
+      <span className="text-sm font-bold text-slate-900">
+        {value}
+      </span>
     </div>
+  );
+}
+
+function ResourceOverview({ stats }) {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900">
+          Career resources
+        </h2>
+
+        <p className="mt-1 text-sm text-slate-500">
+          Keep useful career material organized in one place.
+        </p>
+      </div>
+
+      <div className="mt-6 rounded-2xl bg-slate-50 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Saved resources
+        </p>
+
+        <p className="mt-2 text-3xl font-bold text-slate-900">
+          {stats.total_resources ?? 0}
+        </p>
+
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Resources currently saved in your CareerOS workspace.
+        </p>
+      </div>
+    </section>
   );
 }
 
