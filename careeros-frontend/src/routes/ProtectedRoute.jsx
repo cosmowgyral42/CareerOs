@@ -1,13 +1,14 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../context/useAuth';
+
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#F7F8FC] px-6">
+      <main className="flex min-h-screen items-center justify-center bg-[#F8F9FC] px-6">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" />
 

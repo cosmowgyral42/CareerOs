@@ -6,7 +6,7 @@ import AppLayout from '../layouts/AppLayout';
 import Landing from '../pages/Landing';
 import Login from '../pages/auth/login';
 import Register from '../pages/auth/register';
-import Dashboard from '../pages/dashboard/Dashboard';
+import Dashboard from '../pages/dashboard/dashboard';
 
 import ProtectedRoute from './ProtectedRoute';
 

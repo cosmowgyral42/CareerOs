@@ -1,188 +1,184 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import AuthInput from '../../components/auth/AuthInput';
-import AuthLayout from '../../components/auth/AuthLayout';
-import PasswordInput from '../../components/auth/PasswordInput';
-import { getApiErrorMessage, registerUser } from '../../services/api';
+import { registerUser } from '../../services/api';
 
 function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [form, setForm] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState(
+    location.state?.email || '',
+  );
+  const [password, setPassword] = useState('');
+  const [timezone, setTimezone] = useState('UTC');
 
-  const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
-
-    setErrors((current) => ({
-      ...current,
-      [name]: '',
-    }));
-
-    setServerError('');
-  }
-
-  function validate() {
-    const nextErrors = {};
-
-    if (!form.fullName.trim()) {
-      nextErrors.fullName = 'Full name is required.';
-    } else if (form.fullName.trim().length < 2) {
-      nextErrors.fullName = 'Name must contain at least 2 characters.';
-    }
-
-    if (!form.email.trim()) {
-      nextErrors.email = 'Email is required.';
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      nextErrors.email = 'Enter a valid email address.';
-    }
-
-    if (!form.password) {
-      nextErrors.password = 'Password is required.';
-    } else if (form.password.length < 8) {
-      nextErrors.password =
-        'Password must contain at least 8 characters.';
-    }
-
-    if (!form.confirmPassword) {
-      nextErrors.confirmPassword =
-        'Please confirm your password.';
-    } else if (form.password !== form.confirmPassword) {
-      nextErrors.confirmPassword = 'Passwords do not match.';
-    }
-
-    return nextErrors;
-  }
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const nextErrors = validate();
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-
-    setServerError('');
-    setIsSubmitting(true);
+    setError('');
+    setIsLoading(true);
 
     try {
       await registerUser({
-        full_name: form.fullName.trim(),
-        email: form.email.trim(),
-        password: form.password,
-        timezone: 'UTC',
+        full_name: fullName,
+        email,
+        password,
+        timezone,
       });
 
       navigate('/login', {
         replace: true,
         state: {
-          message: 'Account created successfully. Please sign in.',
+          registered: true,
+          email,
         },
       });
-    } catch (error) {
-      setServerError(getApiErrorMessage(error));
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to create your account. Please try again.',
+      );
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   }
 
   return (
-    <AuthLayout
-      title="Build your career workspace."
-      subtitle="Create your CareerOS account and start turning your career goals into measurable progress."
-      footerText="Already have an account?"
-      footerLink="/login"
-      footerLabel="Sign in"
-    >
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        {serverError && (
-          <div
-            role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
-          >
-            {serverError}
+    <main className="min-h-screen bg-[#F8F9FC] px-6 py-12">
+      <div className="mx-auto flex min-h-[80vh] max-w-md items-center justify-center">
+        <section className="w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+          <div className="mb-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-600">
+              CareerOS
+            </p>
+
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+              Create your account
+            </h1>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Build your career workspace and start tracking your progress.
+            </p>
           </div>
-        )}
 
-        <AuthInput
-          label="Full name"
-          name="fullName"
-          value={form.fullName}
-          onChange={handleChange}
-          placeholder="Your name"
-          autoComplete="name"
-          error={errors.fullName}
-        />
+          {error && (
+            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
-        <AuthInput
-          label="Email address"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="you@example.com"
-          autoComplete="email"
-          error={errors.email}
-        />
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
+            <div>
+              <label
+                htmlFor="fullName"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Full name
+              </label>
 
-        <PasswordInput
-          label="Password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Create a password"
-          autoComplete="new-password"
-          error={errors.password}
-        />
+              <input
+                id="fullName"
+                type="text"
+                autoComplete="name"
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                required
+                minLength={2}
+                maxLength={100}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                placeholder="Your full name"
+              />
+            </div>
 
-        <PasswordInput
-          label="Confirm password"
-          name="confirmPassword"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          placeholder="Repeat your password"
-          autoComplete="new-password"
-          error={errors.confirmPassword}
-        />
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Email
+              </label>
 
-        <label className="flex items-start gap-3 text-sm text-slate-500">
-          <input
-            type="checkbox"
-            required
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-violet-600"
-          />
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                placeholder="you@example.com"
+              />
+            </div>
 
-          <span>
-            I agree to the CareerOS terms and understand how my account
-            data is used.
-          </span>
-        </label>
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Password
+              </label>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting ? 'Creating account...' : 'Create account'}
-        </button>
-      </form>
-    </AuthLayout>
+              <input
+                id="password"
+                type="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                minLength={8}
+                maxLength={128}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                placeholder="At least 8 characters"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="timezone"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Timezone
+              </label>
+
+              <select
+                id="timezone"
+                value={timezone}
+                onChange={(event) => setTimezone(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+              >
+                <option value="UTC">UTC</option>
+                <option value="Asia/Kolkata">Asia/Kolkata</option>
+                <option value="America/New_York">
+                  America/New_York
+                </option>
+                <option value="Europe/London">
+                  Europe/London
+                </option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLoading
+                ? 'Creating your account...'
+                : 'Create account'}
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
   );
 }
 

@@ -1,185 +1,122 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import AuthInput from '../../components/auth/AuthInput';
-import AuthLayout from '../../components/auth/AuthLayout';
-import PasswordInput from '../../components/auth/PasswordInput';
-
-import {
-  getApiErrorMessage,
-  loginUser,
-
-} from '../../services/api';
+import { loginUser, getCurrentUser } from '../../services/api';
+import { useAuth } from '../../context/useAuth';
 
 function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { setUser } = useAuth();
 
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  });
-
-  const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState('');
-
-  const [successMessage] = useState(
-    location.state?.message || '',
-  );
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (location.state?.message) {
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname,
-      );
-    }
-  }, [location.state]);
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
-
-    setErrors((current) => ({
-      ...current,
-      [name]: '',
-    }));
-
-    setServerError('');
-  }
-
-  function validate() {
-    const nextErrors = {};
-
-    if (!form.email.trim()) {
-      nextErrors.email = 'Email is required.';
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      nextErrors.email = 'Enter a valid email address.';
-    }
-
-    if (!form.password) {
-      nextErrors.password = 'Password is required.';
-    }
-
-    return nextErrors;
-  }
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const nextErrors = validate();
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-
-    setServerError('');
-    setIsSubmitting(true);
+    setError('');
+    setIsLoading(true);
 
     try {
-      await loginUser(
-        form.email.trim(),
-        form.password,
+      await loginUser(email, password);
+
+      const currentUser = await getCurrentUser();
+
+      setUser(currentUser);
+
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to log in. Please try again.',
       );
-
-
-      navigate('/dashboard', {
-        replace: true,
-      });
-    } catch (error) {
-      setServerError(getApiErrorMessage(error));
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   }
 
   return (
-    <AuthLayout
-      title="Welcome back."
-      subtitle="Sign in to continue building your career with CareerOS."
-      footerText="Don't have an account?"
-      footerLink="/register"
-      footerLabel="Create one"
-    >
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-5"
-        noValidate
-      >
-        {successMessage && (
-          <div
-            role="status"
-            className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700"
-          >
-            {successMessage}
+    <main className="min-h-screen bg-[#F8F9FC] px-6 py-12">
+      <div className="mx-auto flex min-h-[80vh] max-w-md items-center justify-center">
+        <section className="w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+          <div className="mb-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-600">
+              CareerOS
+            </p>
+
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+              Welcome back
+            </h1>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Sign in to continue managing your career workspace.
+            </p>
           </div>
-        )}
 
-        {serverError && (
-          <div
-            role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+          {error && (
+            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
           >
-            {serverError}
-          </div>
-        )}
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Email
+              </label>
 
-        <AuthInput
-          label="Email address"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="you@example.com"
-          autoComplete="email"
-          error={errors.email}
-        />
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                placeholder="you@example.com"
+              />
+            </div>
 
-        <PasswordInput
-          label="Password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Enter your password"
-          autoComplete="current-password"
-          error={errors.password}
-        />
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Password
+              </label>
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-slate-500">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-slate-300 accent-violet-600"
-            />
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                placeholder="Enter your password"
+              />
+            </div>
 
-            Remember me
-          </label>
-
-          <button
-            type="button"
-            className="text-sm font-semibold text-violet-600 transition hover:text-violet-700"
-          >
-            Forgot password?
-          </button>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
-    </AuthLayout>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLoading ? 'Signing you in...' : 'Sign in'}
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
   );
 }
 
