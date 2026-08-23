@@ -1,41 +1,63 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from 'react-router-dom';
 
-import AuthProvider from '../context/AuthProvider';
 import AppLayout from '../layouts/AppLayout';
 
 import Landing from '../pages/Landing';
-import Login from '../pages/auth/login';
-import Register from '../pages/auth/register';
+import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
 import Dashboard from '../pages/dashboard/dashboard';
+import Goals from '../pages/goals/Goals';
 
 import ProtectedRoute from './ProtectedRoute';
 
 function AppRoutes() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Landing />} />
+      <Routes>
+        <Route
+          path="/"
+          element={<Landing />}
+        />
 
-          <Route path="/login" element={<Login />} />
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
-          <Route path="/register" element={<Register />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route
-                path="/dashboard"
-                element={<Dashboard />}
-              />
-            </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route
+              path="/dashboard"
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="/goals"
+              element={<Goals />}
+            />
           </Route>
+        </Route>
 
-          <Route
-            path="*"
-            element={<Landing />}
-          />
-        </Routes>
-      </AuthProvider>
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

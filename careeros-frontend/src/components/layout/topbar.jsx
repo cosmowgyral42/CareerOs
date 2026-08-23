@@ -1,51 +1,33 @@
-function Topbar({ onMenuClick, user, onLogout }) {
-  const userInitial = user?.full_name?.charAt(0)?.toUpperCase() || 'C';
+import { useAuth } from '../../context/useAuth';
+
+function Topbar({ onLogout }) {
+  const { user } = useAuth();
+
+  const initials =
+    user?.full_name
+      ?.split(' ')
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || 'C';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/80 bg-[#F8F9FC]/90 px-4 backdrop-blur sm:px-6">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          aria-label="Open navigation"
-          className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm hover:text-slate-900 lg:hidden"
-          onClick={onMenuClick}
-        >
-          ☰
-        </button>
-
-        <div>
-          <p className="text-sm font-medium text-slate-500">
-            Your career workspace
-          </p>
-
-          {user?.full_name && (
-            <p className="text-xs text-slate-400">
-              Welcome back, {user.full_name}
-            </p>
-          )}
-        </div>
+      <div>
+        <p className="text-sm font-medium text-slate-500">
+          Your career workspace
+        </p>
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="hidden rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900 sm:block"
-        >
-          Search
-        </button>
-
-        <div className="hidden text-right sm:block">
-          <p className="text-sm font-semibold text-slate-800">
-            {user?.full_name || 'CareerOS User'}
-          </p>
-
-          <p className="text-xs text-slate-400">
-            {user?.email || ''}
-          </p>
-        </div>
+        {user?.full_name && (
+          <span className="hidden text-sm font-semibold text-slate-600 sm:block">
+            {user.full_name}
+          </span>
+        )}
 
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-500 text-sm font-semibold text-white">
-          {userInitial}
+          {initials}
         </div>
 
         <button

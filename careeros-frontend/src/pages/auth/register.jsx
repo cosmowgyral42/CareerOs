@@ -1,181 +1,192 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom';
 
 import { registerUser } from '../../services/api';
+import { removeToken } from '../../services/api/authStorage';
 
 function Register() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState(
-    location.state?.email || '',
-  );
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [timezone, setTimezone] = useState('UTC');
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     setError('');
-    setIsLoading(true);
+
+    if (!fullName.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('Please enter your email.');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must contain at least 8 characters.');
+      return;
+    }
 
     try {
+      setIsSubmitting(true);
+
+      const timezone =
+        Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
       await registerUser({
-        full_name: fullName,
-        email,
+        full_name: fullName.trim(),
+        email: email.trim(),
         password,
         timezone,
       });
+
+// Registration does not authenticate the user.
+// Clear any previous browser session before showing Login.
+      removeToken();
 
       navigate('/login', {
         replace: true,
         state: {
           registered: true,
-          email,
+          email: email.trim(),
         },
       });
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Unable to create your account. Please try again.',
+          : 'Unable to create your account.',
       );
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#F8F9FC] px-6 py-12">
-      <div className="mx-auto flex min-h-[80vh] max-w-md items-center justify-center">
-        <section className="w-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
-          <div className="mb-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-600">
+    <main className="min-h-screen bg-[#F8F9FC] px-4 py-10 sm:px-6">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center justify-center">
+        <section className="w-full max-w-md">
+          <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-200/50 sm:p-9">
+            <p className="text-sm font-semibold text-violet-600">
               CareerOS
             </p>
 
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">
               Create your account
             </h1>
 
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Build your career workspace and start tracking your progress.
+            <p className="mt-2 text-sm text-slate-500">
+              Start building your career workspace.
+            </p>
+
+            {error && (
+              <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                {error}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-7 space-y-5"
+            >
+              <div>
+                <label
+                  htmlFor="register-name"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Full name
+                </label>
+
+                <input
+                  id="register-name"
+                  type="text"
+                  autoComplete="name"
+                  value={fullName}
+                  onChange={(event) =>
+                    setFullName(event.target.value)
+                  }
+                  placeholder="Your name"
+                  required
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-email"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Email
+                </label>
+
+                <input
+                  id="register-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) =>
+                    setEmail(event.target.value)
+                  }
+                  placeholder="you@example.com"
+                  required
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-password"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Password
+                </label>
+
+                <input
+                  id="register-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  value={password}
+                  onChange={(event) =>
+                    setPassword(event.target.value)
+                  }
+                  placeholder="At least 8 characters"
+                  required
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting
+                  ? 'Creating account...'
+                  : 'Create account'}
+              </button>
+            </form>
+
+            <p className="mt-7 text-center text-sm text-slate-500">
+              Already have an account?{' '}
+              <Link
+                to="/login"
+                className="font-bold text-violet-600 hover:text-violet-700"
+              >
+                Sign in
+              </Link>
             </p>
           </div>
-
-          {error && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            <div>
-              <label
-                htmlFor="fullName"
-                className="mb-2 block text-sm font-semibold text-slate-700"
-              >
-                Full name
-              </label>
-
-              <input
-                id="fullName"
-                type="text"
-                autoComplete="name"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-                required
-                minLength={2}
-                maxLength={100}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-                placeholder="Your full name"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-semibold text-slate-700"
-              >
-                Email
-              </label>
-
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-semibold text-slate-700"
-              >
-                Password
-              </label>
-
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                minLength={8}
-                maxLength={128}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-                placeholder="At least 8 characters"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="timezone"
-                className="mb-2 block text-sm font-semibold text-slate-700"
-              >
-                Timezone
-              </label>
-
-              <select
-                id="timezone"
-                value={timezone}
-                onChange={(event) => setTimezone(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-              >
-                <option value="UTC">UTC</option>
-                <option value="Asia/Kolkata">Asia/Kolkata</option>
-                <option value="America/New_York">
-                  America/New_York
-                </option>
-                <option value="Europe/London">
-                  Europe/London
-                </option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isLoading
-                ? 'Creating your account...'
-                : 'Create account'}
-            </button>
-          </form>
         </section>
       </div>
     </main>

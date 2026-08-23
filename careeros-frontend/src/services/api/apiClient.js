@@ -1,96 +1,104 @@
-import { getToken } from './authStorage';
+import {
+  getToken,
+  removeToken,
+} from './authStorage';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://127.0.0.1:8000';
 
-async function request(path, options = {}) {
+async function request(
+  endpoint,
+  options = {},
+) {
   const token = getToken();
 
-  const headers = {
-    ...options.headers,
-  };
+  const headers = new Headers(
+    options.headers || {},
+  );
 
-  const isFormData = options.body instanceof FormData;
-  const isUrlEncoded = options.body instanceof URLSearchParams;
-
-  if (!isFormData && !isUrlEncoded) {
-    headers['Content-Type'] = 'application/json';
+  if (
+    options.body &&
+    !(options.body instanceof FormData)
+  ) {
+    headers.set(
+      'Content-Type',
+      'application/json',
+    );
   }
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.set(
+      'Authorization',
+      `Bearer ${token}`,
+    );
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  const response = await fetch(
+    `${API_BASE_URL}${endpoint}`,
+    {
+      ...options,
+      headers,
+    },
+  );
+
+  const contentType =
+    response.headers.get('content-type') || '';
+
+  const data = contentType.includes(
+    'application/json',
+  )
+    ? await response.json()
+    : null;
 
   if (!response.ok) {
-    let message = 'Something went wrong.';
-
-    try {
-      const data = await response.json();
-
-      if (typeof data.detail === 'string') {
-        message = data.detail;
-      } else if (Array.isArray(data.detail)) {
-        message = data.detail
-          .map((item) => item.msg)
-          .join(', ');
-      }
-    } catch {
-      // Keep the default error message.
+    if (response.status === 401) {
+      removeToken();
     }
+
+    const message =
+      data?.detail ||
+      `Request failed with status ${response.status}.`;
 
     throw new Error(message);
   }
 
-  if (response.status === 204) {
-    return null;
-  }
-
-  return response.json();
+  return data;
 }
 
 const apiClient = {
-  get(path) {
-    return request(path, {
+  get(endpoint, options = {}) {
+    return request(endpoint, {
+      ...options,
       method: 'GET',
     });
   },
 
-  post(path, body) {
-    let requestBody = body;
-
-    if (
-      !(body instanceof FormData) &&
-      !(body instanceof URLSearchParams)
-    ) {
-      requestBody = JSON.stringify(body);
-    }
-
-    return request(path, {
+  post(endpoint, body, options = {}) {
+    return request(endpoint, {
+      ...options,
       method: 'POST',
-      body: requestBody,
+      body:
+        body instanceof FormData
+          ? body
+          : JSON.stringify(body),
     });
   },
 
-  put(path, body) {
-    return request(path, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-  },
-
-  patch(path, body) {
-    return request(path, {
+  patch(endpoint, body, options = {}) {
+    return request(endpoint, {
+      ...options,
       method: 'PATCH',
-      body: JSON.stringify(body),
+      body:
+        body instanceof FormData
+          ? body
+          : JSON.stringify(body),
     });
   },
 
-  delete(path) {
-    return request(path, {
+  delete(endpoint, options = {}) {
+    return request(endpoint, {
+      ...options,
       method: 'DELETE',
     });
   },

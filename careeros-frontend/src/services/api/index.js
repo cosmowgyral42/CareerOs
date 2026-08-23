@@ -9,8 +9,15 @@ export {
 } from './dashboardAPI';
 
 export {
-  hasToken,
+  getGoals,
+  createGoal,
+  updateGoal,
+  deleteGoal,
+} from './goalsApi';
+
+export {
   getToken,
-  setToken,
+  hasToken,
   removeToken,
+  setToken,
 } from './authStorage';

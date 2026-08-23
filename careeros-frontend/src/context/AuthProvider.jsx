@@ -6,36 +6,48 @@ import {
   removeToken,
 } from '../services/api';
 
-import AuthContext from './AuthContext';
+import AuthContext from './authContextValue';
 
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function loadCurrentUser() {
+    let cancelled = false;
+
+    async function restoreSession() {
       if (!hasToken()) {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+
         return;
       }
 
       try {
         const currentUser = await getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error(
-          'CareerOS authentication check failed:',
-          error,
-        );
 
+        if (!cancelled) {
+          setUser(currentUser);
+        }
+      } catch {
         removeToken();
-        setUser(null);
+
+        if (!cancelled) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     }
 
-    loadCurrentUser();
+    restoreSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function logout() {
