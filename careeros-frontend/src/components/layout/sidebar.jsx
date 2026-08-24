@@ -21,6 +21,11 @@ const navigationItems = [
     path: '/projects',
     icon: '◆',
   },
+  {
+    label: 'Resources',
+    path: '/resources',
+    icon: '▣',
+  },
 ];
 
 function Sidebar() {
@@ -31,7 +36,7 @@ function Sidebar() {
           to="/dashboard"
           className="text-xl font-bold tracking-tight text-slate-900"
         >
-          Career<span className="text-violet-600">OS</span>
+          Career<span className="text-pink-700">OS</span>
         </NavLink>
       </div>
 
@@ -48,7 +53,7 @@ function Sidebar() {
               [
                 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition',
                 isActive
-                  ? 'bg-violet-50 text-violet-700'
+                  ? 'bg-violet-50 text-pink-700'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900',
               ].join(' ')
             }
@@ -59,7 +64,7 @@ function Sidebar() {
                   className={[
                     'flex h-8 w-8 items-center justify-center rounded-lg text-sm',
                     isActive
-                      ? 'bg-violet-100 text-violet-700'
+                      ? 'bg-violet-100 text-pink-700'
                       : 'bg-slate-100 text-slate-500',
                   ].join(' ')}
                 >

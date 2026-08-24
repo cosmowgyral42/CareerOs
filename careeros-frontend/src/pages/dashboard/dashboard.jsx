@@ -80,9 +80,11 @@ function Dashboard() {
           Career workspace
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+        <h1 className="mt-2 font-serif text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
           Your dashboard
         </h1>
+
+        
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
           Your career progress, goals, projects, tasks,
@@ -118,7 +120,7 @@ function Dashboard() {
             Career progress
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
             Build momentum, one goal at a time.
           </h2>
 
@@ -222,11 +224,30 @@ function Dashboard() {
           </div>
         </Link>
 
-        <InfoCard
-          title="Resources"
-          value={stats.total_resources ?? 0}
-          description="Learning material saved in CareerOS."
-        />
+        <Link
+          to="/resources"
+          className="group rounded-2xl border border-[#F3E8D2] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-serif text-sm font-semibold text-slate-700">
+                Resources
+              </p>
+
+              <p className="mt-3 font-serif text-2xl font-bold text-slate-900">
+                {stats.total_resources ?? 0}
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Learning material saved in CareerOS.
+              </p>
+           </div>
+
+           <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] transition group-hover:bg-pink-50 group-hover:text-pink-700">
+             Open
+           </span>
+         </div>
+       </Link>
       </section>
     </div>
   );
@@ -246,26 +267,5 @@ function StatCard({ label, value }) {
   );
 }
 
-function InfoCard({
-  title,
-  value,
-  description,
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="text-sm font-semibold text-slate-700">
-        {title}
-      </p>
-
-      <p className="mt-3 text-2xl font-bold text-slate-900">
-        {value}
-      </p>
-
-      <p className="mt-2 text-sm leading-6 text-slate-500">
-        {description}
-      </p>
-    </div>
-  );
-}
 
 export default Dashboard;

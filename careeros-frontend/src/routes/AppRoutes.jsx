@@ -15,6 +15,7 @@ import Goals from '../pages/goals/Goals';
 import Tasks from '../pages/tasks/Tasks';
 import ProtectedRoute from './ProtectedRoute';
 import Projects from '../pages/projects/Projects';
+import Resources from '../pages/resources/Resources';
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -55,6 +56,10 @@ function AppRoutes() {
         <Route
           path="/projects"
           element={<Projects />}
+        />
+        <Route
+          path="/resources"
+          element={<Resources />}
         />
 
 

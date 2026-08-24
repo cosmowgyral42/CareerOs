@@ -30,6 +30,13 @@ export {
 } from './projectsApi';
 
 export {
+  getResources,
+  createResource,
+  updateResource,
+  deleteResource,
+} from './resourcesApi';
+
+export {
   getToken,
   hasToken,
   removeToken,
