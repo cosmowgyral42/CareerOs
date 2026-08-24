@@ -10,6 +10,7 @@ from app.api.v1 import (
     projects,
     resources,
     resume_analyses,
+    skill_gaps,
     skills,
     tasks,
     users,
@@ -29,3 +30,4 @@ api_router.include_router(resume_analyses.router)
 api_router.include_router(career_recommendations.router)
 api_router.include_router(activity_logs.router)
 api_router.include_router(skills.router)
+api_router.include_router(skill_gaps.router)

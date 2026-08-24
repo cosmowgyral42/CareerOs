@@ -306,6 +306,48 @@ function Dashboard() {
             </div>
           </div>
         </Link>
+
+        <Link
+          to="/skills"
+          className="block rounded-3xl border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
+        >
+          <p className="text-sm font-semibold text-pink-500">
+            Skills
+          </p>
+
+          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
+            Build your skills
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Track your abilities and proficiency levels.
+          </p>
+
+          <span className="mt-5 inline-flex rounded-xl bg-[#FFF8E7] px-4 py-2 text-sm font-bold text-amber-700">
+            Open skills
+          </span>
+        </Link>
+
+        <Link
+          to="/skill-gaps"
+          className="block rounded-3xl border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
+        >
+          <p className="text-sm font-semibold text-pink-500">
+            Skill gaps
+          </p>
+
+          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
+            Close your gaps
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Track missing and developing skills.
+          </p>
+
+          <span className="mt-5 inline-flex rounded-xl bg-[#FFF8E7] px-4 py-2 text-sm font-bold text-amber-700">
+            Open skill gaps
+          </span>
+        </Link>
       </section>
     </div>
   );

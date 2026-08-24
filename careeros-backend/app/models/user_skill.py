@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -23,4 +23,11 @@ class UserSkill(Base):
         ForeignKey("skills.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+
+    level: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+        default="beginner",
+        server_default="beginner",
     )

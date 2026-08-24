@@ -17,6 +17,8 @@ import Tasks from '../pages/tasks/Tasks';
 import Projects from '../pages/projects/Projects';
 import Resources from '../pages/resources/Resources';
 import Applications from '../pages/applications/Applications';
+import Skills from '../pages/skills/skills';
+import SkillGaps from '../pages/skill-gaps/SkillGaps';
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -69,6 +71,16 @@ function AppRoutes() {
             <Route
               path="/applications"
               element={<Applications />}
+            />
+
+            <Route
+              path="/skills"
+              element={<Skills />}
+            />
+
+            <Route
+              path="/skill-gaps"
+              element={<SkillGaps />}
             />
           </Route>
         </Route>

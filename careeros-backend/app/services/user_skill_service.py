@@ -32,6 +32,7 @@ def add_skill_to_user(
     name: str,
     category: str | None = None,
     description: str | None = None,
+    level: str = "beginner",
 ):
     skill = user_skill_repository.get_skill_by_name(
         db,
@@ -46,20 +47,67 @@ def add_skill_to_user(
             description=description,
         )
 
-    if user_skill_repository.user_has_skill(
+    existing = user_skill_repository.get_user_skill(
         db,
         user_id,
         skill.id,
-    ):
+    )
+
+    if existing is not None:
         return skill
 
     user_skill_repository.add_user_skill(
         db,
         user_id,
         skill.id,
+        level,
     )
 
     return skill
+
+
+def update_skill_level(
+    db: Session,
+    *,
+    user_id: int,
+    skill_id: int,
+    level: str,
+):
+    user_skill = user_skill_repository.get_user_skill(
+        db,
+        user_id,
+        skill_id,
+    )
+
+    if user_skill is None:
+        return None
+
+    user_skill_repository.update_user_skill(
+        db,
+        user_skill,
+        level,
+    )
+
+    return user_skill
+
+    return user_skill_repository.get_skill_by_name(
+        db,
+        user_skill_skill_name(db, user_skill.skill_id),
+    )
+
+
+def user_skill_skill_name(
+    db: Session,
+    skill_id: int,
+) -> str:
+    from app.models.skill import Skill
+
+    skill = db.get(Skill, skill_id)
+
+    if skill is None:
+        return ""
+
+    return skill.name
 
 
 def remove_skill_from_user(

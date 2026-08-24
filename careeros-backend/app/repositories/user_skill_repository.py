@@ -11,12 +11,28 @@ def get_user_skills(
 ) -> list[Skill]:
     statement = (
         select(Skill)
-        .join(UserSkill, UserSkill.skill_id == Skill.id)
+        .join(
+            UserSkill,
+            UserSkill.skill_id == Skill.id,
+        )
         .where(UserSkill.user_id == user_id)
         .order_by(Skill.name.asc())
     )
 
-    return list(db.scalars(statement).all())
+    skills = list(db.scalars(statement).all())
+
+    for skill in skills:
+        user_skill = db.scalar(
+            select(UserSkill).where(
+                UserSkill.user_id == user_id,
+                UserSkill.skill_id == skill.id,
+            )
+        )
+
+        if user_skill is not None:
+            skill.level = user_skill.level
+
+    return skills
 
 
 def get_skill_by_name(
@@ -25,7 +41,20 @@ def get_skill_by_name(
 ) -> Skill | None:
     return db.scalar(
         select(Skill).where(
-            Skill.name.ilike(name.strip())
+            Skill.name.ilike(name.strip()),
+        )
+    )
+
+
+def get_user_skill(
+    db: Session,
+    user_id: int,
+    skill_id: int,
+) -> UserSkill | None:
+    return db.scalar(
+        select(UserSkill).where(
+            UserSkill.user_id == user_id,
+            UserSkill.skill_id == skill_id,
         )
     )
 
@@ -35,12 +64,11 @@ def user_has_skill(
     user_id: int,
     skill_id: int,
 ) -> bool:
-    statement = select(UserSkill).where(
-        UserSkill.user_id == user_id,
-        UserSkill.skill_id == skill_id,
-    )
-
-    return db.scalar(statement) is not None
+    return get_user_skill(
+        db,
+        user_id,
+        skill_id,
+    ) is not None
 
 
 def create_skill(
@@ -66,13 +94,28 @@ def add_user_skill(
     db: Session,
     user_id: int,
     skill_id: int,
+    level: str,
 ) -> UserSkill:
     user_skill = UserSkill(
         user_id=user_id,
         skill_id=skill_id,
+        level=level,
     )
 
     db.add(user_skill)
+    db.commit()
+    db.refresh(user_skill)
+
+    return user_skill
+
+
+def update_user_skill(
+    db: Session,
+    user_skill: UserSkill,
+    level: str,
+) -> UserSkill:
+    user_skill.level = level
+
     db.commit()
     db.refresh(user_skill)
 

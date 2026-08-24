@@ -31,6 +31,14 @@ const navigationItems = [
     path: '/applications',
     icon: '▤',
   },
+  {
+    label: 'Skills',
+    path: '/skills',
+  },
+  {
+    label: 'Skill Gaps',
+    path: '/skill-gaps',
+  },
 ];
 
 function Sidebar() {

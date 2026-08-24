@@ -44,6 +44,20 @@ export {
 } from './resourcesApi';
 
 export {
+  getSkills,
+  createSkill,
+  updateSkill,
+  deleteSkill,
+} from './skillsApi';
+
+export {
+  getSkillGaps,
+  createSkillGap,
+  updateSkillGap,
+  deleteSkillGap,
+} from './skillGapsApi';
+
+export {
   getApplications,
   createApplication,
   updateApplication,
