@@ -16,6 +16,20 @@ export {
 } from './goalsApi';
 
 export {
+  getTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+} from './tasksApi';
+
+export {
+  getProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+} from './projectsApi';
+
+export {
   getToken,
   hasToken,
   removeToken,

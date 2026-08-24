@@ -12,9 +12,9 @@ import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import Dashboard from '../pages/dashboard/dashboard';
 import Goals from '../pages/goals/Goals';
-
+import Tasks from '../pages/tasks/Tasks';
 import ProtectedRoute from './ProtectedRoute';
-
+import Projects from '../pages/projects/Projects';
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -47,6 +47,16 @@ function AppRoutes() {
             />
           </Route>
         </Route>
+        <Route
+          path="/tasks"
+          element={<Tasks />}
+        />
+
+        <Route
+          path="/projects"
+          element={<Projects />}
+        />
+
 
         <Route
           path="*"

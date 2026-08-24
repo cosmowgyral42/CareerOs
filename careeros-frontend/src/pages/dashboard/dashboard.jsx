@@ -129,7 +129,7 @@ function Dashboard() {
 
           <Link
             to="/goals"
-            className="rounded-xl bg-pink-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-pink-700"
+            className="mt-6 inline-flex rounded-xl bg-pink-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-pink-700"
           >
             Manage goals
           </Link>
@@ -172,17 +172,55 @@ function Dashboard() {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <InfoCard
-          title="Tasks"
-          value={stats.total_tasks ?? 0}
-          description="Work required to reach your goals."
-        />
+        <Link
+          to="/tasks"
+          className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">
+                Tasks
+              </p>
 
-        <InfoCard
-          title="Projects"
-          value={stats.total_projects ?? 0}
-          description="Your practical work and projects."
-        />
+              <p className="mt-3 text-2xl font-bold text-slate-900">
+                {stats.total_tasks ?? 0}
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Work required to reach your goals.
+              </p>
+            </div>
+
+            <span className="rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 transition group-hover:bg-violet-100">
+              Open
+            </span>
+          </div>
+        </Link>
+
+        <Link
+          to="/projects"
+          className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">
+                Projects
+              </p>
+
+              <p className="mt-3 text-2xl font-bold text-slate-900">
+                {stats.total_projects ?? 0}
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Your practical work and projects.
+              </p>
+            </div>
+
+            <span className="rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 transition group-hover:bg-violet-100">
+              Open
+            </span>
+          </div>
+        </Link>
 
         <InfoCard
           title="Resources"
