@@ -10,12 +10,16 @@ import AppLayout from '../layouts/AppLayout';
 import Landing from '../pages/Landing';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
+
 import Dashboard from '../pages/dashboard/dashboard';
 import Goals from '../pages/goals/Goals';
 import Tasks from '../pages/tasks/Tasks';
-import ProtectedRoute from './ProtectedRoute';
 import Projects from '../pages/projects/Projects';
 import Resources from '../pages/resources/Resources';
+import Applications from '../pages/applications/Applications';
+
+import ProtectedRoute from './ProtectedRoute';
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -26,13 +30,13 @@ function AppRoutes() {
         />
 
         <Route
-          path="/register"
-          element={<Register />}
+          path="/login"
+          element={<Login />}
         />
 
         <Route
-          path="/login"
-          element={<Login />}
+          path="/register"
+          element={<Register />}
         />
 
         <Route element={<ProtectedRoute />}>
@@ -46,22 +50,28 @@ function AppRoutes() {
               path="/goals"
               element={<Goals />}
             />
+
+            <Route
+              path="/tasks"
+              element={<Tasks />}
+            />
+
+            <Route
+              path="/projects"
+              element={<Projects />}
+            />
+
+            <Route
+              path="/resources"
+              element={<Resources />}
+            />
+
+            <Route
+              path="/applications"
+              element={<Applications />}
+            />
           </Route>
         </Route>
-        <Route
-          path="/tasks"
-          element={<Tasks />}
-        />
-
-        <Route
-          path="/projects"
-          element={<Projects />}
-        />
-        <Route
-          path="/resources"
-          element={<Resources />}
-        />
-
 
         <Route
           path="*"

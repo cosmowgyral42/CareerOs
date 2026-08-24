@@ -26,6 +26,11 @@ const navigationItems = [
     path: '/resources',
     icon: '▣',
   },
+  {
+    label: 'Applications',
+    path: '/applications',
+    icon: '▤',
+  },
 ];
 
 function Sidebar() {

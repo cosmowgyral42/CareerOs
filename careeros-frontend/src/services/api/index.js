@@ -1,12 +1,19 @@
 export {
-  getCurrentUser,
-  loginUser,
   registerUser,
+  loginUser,
+  getCurrentUser,
 } from './authapi';
 
 export {
+  getToken,
+  hasToken,
+  setToken,
+  removeToken,
+} from './authStorage';
+
+export {
   getDashboard,
-} from './dashboardAPI';
+} from './dashboardApi';
 
 export {
   getGoals,
@@ -37,8 +44,8 @@ export {
 } from './resourcesApi';
 
 export {
-  getToken,
-  hasToken,
-  removeToken,
-  setToken,
-} from './authStorage';
+  getApplications,
+  createApplication,
+  updateApplication,
+  deleteApplication,
+} from './applicationsApi';
