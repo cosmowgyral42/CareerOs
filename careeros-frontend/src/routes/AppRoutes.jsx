@@ -7,18 +7,19 @@ import {
 
 import AppLayout from '../layouts/AppLayout';
 
-import Landing from '../pages/Landing';
-import Login from '../pages/auth/Login';
-import Register from '../pages/auth/Register';
+import Landing from '../pages/landing';
+import Login from '../pages/auth/login';
+import Register from '../pages/auth/register';
 
 import Dashboard from '../pages/dashboard/dashboard';
-import Goals from '../pages/goals/Goals';
-import Tasks from '../pages/tasks/Tasks';
+import Goals from '../pages/goals/goals';
+import Tasks from '../pages/tasks/tasks';
 import Projects from '../pages/projects/Projects';
-import Resources from '../pages/resources/Resources';
-import Applications from '../pages/applications/Applications';
+import Resources from '../pages/resources/resources';
+import Applications from '../pages/applications/applications';
 import Skills from '../pages/skills/skills';
 import SkillGaps from '../pages/skill-gaps/SkillGaps';
+import CareerTargets from '../pages/career-targets/CareerTargets';
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -26,6 +27,7 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route
           path="/"
           element={<Landing />}
@@ -41,6 +43,7 @@ function AppRoutes() {
           element={<Register />}
         />
 
+        {/* Protected application */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route
@@ -64,13 +67,13 @@ function AppRoutes() {
             />
 
             <Route
-              path="/resources"
-              element={<Resources />}
+              path="/applications"
+              element={<Applications />}
             />
 
             <Route
-              path="/applications"
-              element={<Applications />}
+              path="/resources"
+              element={<Resources />}
             />
 
             <Route
@@ -82,9 +85,15 @@ function AppRoutes() {
               path="/skill-gaps"
               element={<SkillGaps />}
             />
+
+            <Route
+              path="/career-targets"
+              element={<CareerTargets />}
+            />
           </Route>
         </Route>
 
+        {/* Unknown routes */}
         <Route
           path="*"
           element={

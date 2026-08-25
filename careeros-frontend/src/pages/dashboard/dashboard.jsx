@@ -348,6 +348,27 @@ function Dashboard() {
             Open skill gaps
           </span>
         </Link>
+
+        <Link
+          to="/career-targets"
+          className="block rounded-2xl border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
+        >
+          <p className="font-sans text-sm font-semibold text-pink-500">
+            Career direction
+          </p>
+
+          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
+            Career Targets
+          </h2>
+
+          <p className="mt-2 font-sans text-sm leading-6 text-slate-500">
+            Define your target roles and the skills you need.
+          </p>
+
+          <span className="mt-4 inline-block font-sans text-sm font-semibold text-pink-600">
+            Manage targets →
+          </span>
+        </Link>
       </section>
     </div>
   );

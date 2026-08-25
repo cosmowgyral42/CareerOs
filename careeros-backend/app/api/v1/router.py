@@ -14,6 +14,7 @@ from app.api.v1 import (
     skills,
     tasks,
     users,
+    career_targets,
 )
 
 api_router = APIRouter()
@@ -31,3 +32,4 @@ api_router.include_router(career_recommendations.router)
 api_router.include_router(activity_logs.router)
 api_router.include_router(skills.router)
 api_router.include_router(skill_gaps.router)
+api_router.include_router(career_targets.router) 

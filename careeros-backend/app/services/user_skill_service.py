@@ -12,7 +12,7 @@ def get_user_skill_names(
         user_id,
     )
 
-    return [skill.name for skill in skills]
+    return [skill["name"] for skill in skills]
 
 
 def get_user_skills(
@@ -53,17 +53,22 @@ def add_skill_to_user(
         skill.id,
     )
 
-    if existing is not None:
-        return skill
+    if existing is None:
+        user_skill_repository.add_user_skill(
+            db,
+            user_id,
+            skill.id,
+            level,
+        )
+    else:
+        existing.level = level
+        db.commit()
 
-    user_skill_repository.add_user_skill(
+    return _get_user_skill_response(
         db,
         user_id,
         skill.id,
-        level,
     )
-
-    return skill
 
 
 def update_skill_level(
@@ -82,32 +87,17 @@ def update_skill_level(
     if user_skill is None:
         return None
 
-    user_skill_repository.update_user_skill(
+    user_skill_repository.update_user_skill_level(
         db,
         user_skill,
         level,
     )
 
-    return user_skill
-
-    return user_skill_repository.get_skill_by_name(
+    return _get_user_skill_response(
         db,
-        user_skill_skill_name(db, user_skill.skill_id),
+        user_id,
+        skill_id,
     )
-
-
-def user_skill_skill_name(
-    db: Session,
-    skill_id: int,
-) -> str:
-    from app.models.skill import Skill
-
-    skill = db.get(Skill, skill_id)
-
-    if skill is None:
-        return ""
-
-    return skill.name
 
 
 def remove_skill_from_user(
@@ -121,3 +111,20 @@ def remove_skill_from_user(
         user_id,
         skill_id,
     )
+
+
+def _get_user_skill_response(
+    db: Session,
+    user_id: int,
+    skill_id: int,
+):
+    skills = user_skill_repository.get_user_skills(
+        db,
+        user_id,
+    )
+
+    for skill in skills:
+        if skill["skill_id"] == skill_id:
+            return skill
+
+    return None

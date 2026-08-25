@@ -1,27 +1,31 @@
 import apiClient from './apiClient';
 
-export async function getSkills() {
+export function getMySkills() {
   return apiClient.get('/api/v1/skills');
 }
 
-export async function createSkill(skillData) {
+export function getSkills() {
+  return getMySkills();
+}
+
+export function createSkill(data) {
   return apiClient.post(
     '/api/v1/skills',
-    skillData,
+    data,
   );
 }
 
-export async function updateSkill(
+export function updateSkill(
   skillId,
-  skillData,
+  data,
 ) {
   return apiClient.patch(
     `/api/v1/skills/${skillId}`,
-    skillData,
+    data,
   );
 }
 
-export async function deleteSkill(skillId) {
+export function deleteSkill(skillId) {
   return apiClient.delete(
     `/api/v1/skills/${skillId}`,
   );

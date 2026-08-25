@@ -8,31 +8,29 @@ from app.models.user_skill import UserSkill
 def get_user_skills(
     db: Session,
     user_id: int,
-) -> list[Skill]:
+):
     statement = (
-        select(Skill)
+        select(
+            UserSkill.id,
+            Skill.id.label("skill_id"),
+            Skill.name,
+            Skill.category,
+            Skill.description,
+            UserSkill.level,
+        )
         .join(
-            UserSkill,
+            Skill,
             UserSkill.skill_id == Skill.id,
         )
-        .where(UserSkill.user_id == user_id)
-        .order_by(Skill.name.asc())
+        .where(
+            UserSkill.user_id == user_id,
+        )
+        .order_by(
+            Skill.name.asc(),
+        )
     )
 
-    skills = list(db.scalars(statement).all())
-
-    for skill in skills:
-        user_skill = db.scalar(
-            select(UserSkill).where(
-                UserSkill.user_id == user_id,
-                UserSkill.skill_id == skill.id,
-            )
-        )
-
-        if user_skill is not None:
-            skill.level = user_skill.level
-
-    return skills
+    return list(db.execute(statement).mappings().all())
 
 
 def get_skill_by_name(
@@ -51,12 +49,12 @@ def get_user_skill(
     user_id: int,
     skill_id: int,
 ) -> UserSkill | None:
-    return db.scalar(
-        select(UserSkill).where(
-            UserSkill.user_id == user_id,
-            UserSkill.skill_id == skill_id,
-        )
+    statement = select(UserSkill).where(
+        UserSkill.user_id == user_id,
+        UserSkill.skill_id == skill_id,
     )
+
+    return db.scalar(statement)
 
 
 def user_has_skill(
@@ -64,11 +62,14 @@ def user_has_skill(
     user_id: int,
     skill_id: int,
 ) -> bool:
-    return get_user_skill(
-        db,
-        user_id,
-        skill_id,
-    ) is not None
+    return (
+        get_user_skill(
+            db,
+            user_id,
+            skill_id,
+        )
+        is not None
+    )
 
 
 def create_skill(
@@ -94,7 +95,7 @@ def add_user_skill(
     db: Session,
     user_id: int,
     skill_id: int,
-    level: str,
+    level: str = "beginner",
 ) -> UserSkill:
     user_skill = UserSkill(
         user_id=user_id,
@@ -109,7 +110,7 @@ def add_user_skill(
     return user_skill
 
 
-def update_user_skill(
+def update_user_skill_level(
     db: Session,
     user_skill: UserSkill,
     level: str,
@@ -127,12 +128,11 @@ def remove_user_skill(
     user_id: int,
     skill_id: int,
 ) -> bool:
-    statement = select(UserSkill).where(
-        UserSkill.user_id == user_id,
-        UserSkill.skill_id == skill_id,
+    user_skill = get_user_skill(
+        db,
+        user_id,
+        skill_id,
     )
-
-    user_skill = db.scalar(statement)
 
     if user_skill is None:
         return False

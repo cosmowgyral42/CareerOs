@@ -39,6 +39,11 @@ const navigationItems = [
     label: 'Skill Gaps',
     path: '/skill-gaps',
   },
+  {
+    label: 'Career Targets',
+    path: '/career-targets',
+  }
+  
 ];
 
 function Sidebar() {

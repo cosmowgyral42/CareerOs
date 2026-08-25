@@ -32,14 +32,14 @@ class UserSkillCreate(BaseModel):
 
 
 class UserSkillUpdate(BaseModel):
-    level: str | None = Field(
-        default=None,
+    level: str = Field(
         pattern="^(beginner|intermediate|advanced|expert)$",
     )
 
 
 class UserSkillResponse(BaseModel):
     id: int
+    skill_id: int
     name: str
     category: str | None
     description: str | None

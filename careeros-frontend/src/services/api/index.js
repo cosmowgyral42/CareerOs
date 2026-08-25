@@ -1,17 +1,4 @@
 export {
-  registerUser,
-  loginUser,
-  getCurrentUser,
-} from './authapi';
-
-export {
-  getToken,
-  hasToken,
-  setToken,
-  removeToken,
-} from './authStorage';
-
-export {
   getDashboard,
 } from './dashboardApi';
 
@@ -37,6 +24,13 @@ export {
 } from './projectsApi';
 
 export {
+  getApplications,
+  createApplication,
+  updateApplication,
+  deleteApplication,
+} from './applicationsApi';
+
+export {
   getResources,
   createResource,
   updateResource,
@@ -44,6 +38,7 @@ export {
 } from './resourcesApi';
 
 export {
+  getMySkills,
   getSkills,
   createSkill,
   updateSkill,
@@ -52,14 +47,31 @@ export {
 
 export {
   getSkillGaps,
-  createSkillGap,
   updateSkillGap,
   deleteSkillGap,
 } from './skillGapsApi';
 
 export {
-  getApplications,
-  createApplication,
-  updateApplication,
-  deleteApplication,
-} from './applicationsApi';
+  getCareerTargets,
+  getCareerTarget,
+  createCareerTarget,
+  updateCareerTarget,
+  deleteCareerTarget,
+  addTargetSkill,
+  getTargetSkills,
+  updateTargetSkill,
+  deleteTargetSkill,
+} from './careerTargetsApi';
+
+export {
+  loginUser,
+  registerUser,
+  getCurrentUser,
+} from './authapi';
+
+export {
+  getToken,
+  hasToken,
+  setToken,
+  removeToken,
+} from './authStorage';
