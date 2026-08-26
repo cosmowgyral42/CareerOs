@@ -37,5 +37,16 @@ class ResumeAnalysis(TimestampMixin, Base):
     status: Mapped[str] = mapped_column(
         String(30),
         default="pending",
+        server_default="pending",
         nullable=False,
+    )
+
+    match_score: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    analysis_result: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
     )

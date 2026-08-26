@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict , Field
-
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ResumeAnalysisResponse(BaseModel):
@@ -10,22 +9,31 @@ class ResumeAnalysisResponse(BaseModel):
     file_name: str
     job_description: str | None
     status: str
+    match_score: int | None
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
 
 
-class ResumeAnalysisDetail(ResumeAnalysisResponse):
+class ResumeAnalysisDetail(
+    ResumeAnalysisResponse
+):
     extracted_text: str
-    match_score: int | None = None
-    analysis_result: str | None = None
+    analysis_result: str | None
+
 
 class AIResumeResult(BaseModel):
-    match_score: int = Field(ge=0, le=100)
+    match_score: int = Field(
+        ge=0,
+        le=100,
+    )
+
     matched_skills: list[str]
     missing_skills: list[str]
     strengths: list[str]
     weaknesses: list[str]
     recommendations: list[str]
-    summary: str    
+    summary: str

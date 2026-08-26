@@ -64,6 +64,13 @@ export {
 } from './careerTargetsApi';
 
 export {
+  uploadResume,
+  analyzeResume,
+  getResumeAnalyses,
+  getResumeAnalysis,
+} from './resumeAnalysesApi';
+
+export {
   loginUser,
   registerUser,
   getCurrentUser,

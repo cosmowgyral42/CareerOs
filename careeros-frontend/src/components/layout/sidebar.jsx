@@ -34,16 +34,23 @@ const navigationItems = [
   {
     label: 'Skills',
     path: '/skills',
+    icon: '◇',
   },
   {
     label: 'Skill Gaps',
     path: '/skill-gaps',
+    icon: '△',
   },
   {
     label: 'Career Targets',
     path: '/career-targets',
-  }
-  
+    icon: '★',
+  },
+  {
+    label: 'Resume AI',
+    path: '/resume-analysis',
+    icon: '✦',
+  },
 ];
 
 function Sidebar() {

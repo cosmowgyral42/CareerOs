@@ -73,6 +73,17 @@ function Dashboard() {
 
   const stats = dashboard?.stats ?? {};
 
+  const totalGoals = stats.total_goals ?? 0;
+  const completedGoals = stats.completed_goals ?? 0;
+
+  const goalProgress =
+    totalGoals > 0
+      ? Math.min(
+          100,
+          (completedGoals / totalGoals) * 100,
+        )
+      : 0;
+
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       <section>
@@ -161,7 +172,7 @@ function Dashboard() {
           </p>
 
           <p className="mt-4 font-serif text-5xl font-bold text-slate-900">
-            {stats.total_goals ?? 0}
+            {totalGoals}
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
@@ -172,100 +183,38 @@ function Dashboard() {
             <div
               className="h-full rounded-full bg-pink-400 transition-all"
               style={{
-                width:
-                  stats.total_goals > 0
-                    ? `${Math.min(
-                        100,
-                        ((stats.completed_goals ?? 0) /
-                          stats.total_goals) *
-                          100,
-                      )}%`
-                    : '0%',
+                width: `${goalProgress}%`,
               }}
             />
           </div>
 
           <p className="mt-3 text-xs font-medium text-slate-500">
-            {stats.completed_goals ?? 0} completed
+            {completedGoals} completed
           </p>
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Link
+        <DashboardLink
           to="/tasks"
-          className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">
-                Tasks
-              </p>
+          title="Tasks"
+          value={stats.total_tasks ?? 0}
+          description="Work required to reach your goals."
+        />
 
-              <p className="mt-3 font-serif text-2xl font-bold text-slate-900">
-                {stats.total_tasks ?? 0}
-              </p>
-
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Work required to reach your goals.
-              </p>
-            </div>
-
-            <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] group-hover:bg-pink-50 group-hover:text-pink-700">
-              Open
-            </span>
-          </div>
-        </Link>
-
-        <Link
+        <DashboardLink
           to="/projects"
-          className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">
-                Projects
-              </p>
+          title="Projects"
+          value={stats.total_projects ?? 0}
+          description="Your practical work and projects."
+        />
 
-              <p className="mt-3 font-serif text-2xl font-bold text-slate-900">
-                {stats.total_projects ?? 0}
-              </p>
-
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Your practical work and projects.
-              </p>
-            </div>
-
-            <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] group-hover:bg-pink-50 group-hover:text-pink-700">
-              Open
-            </span>
-          </div>
-        </Link>
-
-        <Link
+        <DashboardLink
           to="/resources"
-          className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">
-                Resources
-              </p>
-
-              <p className="mt-3 font-serif text-2xl font-bold text-slate-900">
-                {stats.total_resources ?? 0}
-              </p>
-
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Learning material saved in CareerOS.
-              </p>
-            </div>
-
-            <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] group-hover:bg-pink-50 group-hover:text-pink-700">
-              Open
-            </span>
-          </div>
-        </Link>
+          title="Resources"
+          value={stats.total_resources ?? 0}
+          description="Learning material saved in CareerOS."
+        />
       </section>
 
       <section>
@@ -306,69 +255,41 @@ function Dashboard() {
             </div>
           </div>
         </Link>
+      </section>
 
-        <Link
+      <section className="grid gap-4 md:grid-cols-2">
+        <DashboardFeature
           to="/skills"
-          className="block rounded-3xl border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
-        >
-          <p className="text-sm font-semibold text-pink-500">
-            Skills
-          </p>
+          label="Skills"
+          title="Build your skills"
+          description="Track your abilities and proficiency levels."
+          button="Open skills"
+        />
 
-          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
-            Build your skills
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Track your abilities and proficiency levels.
-          </p>
-
-          <span className="mt-5 inline-flex rounded-xl bg-[#FFF8E7] px-4 py-2 text-sm font-bold text-amber-700">
-            Open skills
-          </span>
-        </Link>
-
-        <Link
+        <DashboardFeature
           to="/skill-gaps"
-          className="block rounded-3xl border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
-        >
-          <p className="text-sm font-semibold text-pink-500">
-            Skill gaps
-          </p>
+          label="Skill gaps"
+          title="Close your gaps"
+          description="Track missing and developing skills."
+          button="Open skill gaps"
+        />
 
-          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
-            Close your gaps
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Track missing and developing skills.
-          </p>
-
-          <span className="mt-5 inline-flex rounded-xl bg-[#FFF8E7] px-4 py-2 text-sm font-bold text-amber-700">
-            Open skill gaps
-          </span>
-        </Link>
-
-        <Link
+        <DashboardFeature
           to="/career-targets"
-          className="block rounded-2xl border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
-        >
-          <p className="font-sans text-sm font-semibold text-pink-500">
-            Career direction
-          </p>
+          label="Career direction"
+          title="Career Targets"
+          description="Define your target roles and the skills you need."
+          button="Manage targets →"
+        />
 
-          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
-            Career Targets
-          </h2>
-
-          <p className="mt-2 font-sans text-sm leading-6 text-slate-500">
-            Define your target roles and the skills you need.
-          </p>
-
-          <span className="mt-4 inline-block font-sans text-sm font-semibold text-pink-600">
-            Manage targets →
-          </span>
-        </Link>
+        <DashboardFeature
+          to="/resume-analysis"
+          label="CareerOS AI"
+          title="Resume Analysis"
+          description="Upload your resume, compare it with a job description, and discover your match score, skills, weaknesses, and recommendations."
+          button="Open Resume AI"
+          highlighted
+        />
       </section>
     </div>
   );
@@ -385,6 +306,95 @@ function StatCard({ label, value }) {
         {value}
       </p>
     </div>
+  );
+}
+
+function DashboardLink({
+  to,
+  title,
+  value,
+  description,
+}) {
+  return (
+    <Link
+      to={to}
+      className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-md"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-slate-700">
+            {title}
+          </p>
+
+          <p className="mt-3 font-serif text-2xl font-bold text-slate-900">
+            {value}
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            {description}
+          </p>
+        </div>
+
+        <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] group-hover:bg-pink-50 group-hover:text-pink-700">
+          Open
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function DashboardFeature({
+  to,
+  label,
+  title,
+  description,
+  button,
+  highlighted = false,
+}) {
+  return (
+    <Link
+      to={to}
+      className={[
+        'group block rounded-3xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg',
+        highlighted
+          ? 'border-yellow-200'
+          : 'border-pink-100 hover:border-pink-200',
+      ].join(' ')}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-sans text-sm font-bold uppercase tracking-wider text-pink-500">
+            {label}
+          </p>
+
+          <h2 className="mt-2 font-serif text-2xl font-bold text-slate-900">
+            {title}
+          </h2>
+
+          <p className="mt-2 max-w-md font-sans text-sm leading-6 text-slate-500">
+            {description}
+          </p>
+        </div>
+
+        {highlighted && (
+          <div className="rounded-2xl bg-yellow-300 px-4 py-3 font-sans text-sm font-bold text-slate-900 transition group-hover:bg-yellow-400">
+            Open
+          </div>
+        )}
+      </div>
+
+      {!highlighted && (
+        <span className="mt-5 inline-flex rounded-xl bg-[#FFF8E7] px-4 py-2 text-sm font-bold text-amber-700">
+          {button}
+        </span>
+      )}
+
+      {highlighted && (
+        <span className="mt-5 inline-flex rounded-xl bg-pink-500 px-4 py-2 text-sm font-bold text-white transition group-hover:bg-pink-600">
+          {button}
+        </span>
+      )}
+    </Link>
   );
 }
 

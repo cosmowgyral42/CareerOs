@@ -22,6 +22,8 @@ import SkillGaps from '../pages/skill-gaps/SkillGaps';
 import CareerTargets from '../pages/career-targets/CareerTargets';
 
 import ProtectedRoute from './ProtectedRoute';
+import ResumeAI from '../pages/resume/ResumeAI';
+import ResumeAnalysis from '../pages/resume/ResumeAnalysis';
 
 function AppRoutes() {
   return (
@@ -90,6 +92,15 @@ function AppRoutes() {
               path="/career-targets"
               element={<CareerTargets />}
             />
+
+            <Route
+              path="/resume"
+              element={<ResumeAI />}
+            />
+           <Route
+             path="/resume-analysis"
+             element={<ResumeAnalysis                 />} 
+           /> 
           </Route>
         </Route>
 

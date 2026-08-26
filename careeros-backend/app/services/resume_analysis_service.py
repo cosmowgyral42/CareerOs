@@ -13,6 +13,61 @@ from app.services.ai_usage_service import (
 from app.utils.text_analysis import extract_resume_text
 
 
+MAX_RESUME_SIZE = 10 * 1024 * 1024
+
+ALLOWED_EXTENSIONS = {
+    ".pdf",
+    ".docx",
+}
+
+
+def _validate_resume_file(
+    filename: str | None,
+    content: bytes,
+) -> None:
+    if not filename:
+        raise ValueError(
+            "A resume filename is required."
+        )
+
+    if not content:
+        raise ValueError(
+            "The uploaded resume is empty."
+        )
+
+    if len(content) > MAX_RESUME_SIZE:
+        raise ValueError(
+            "Resume file must be 10 MB or smaller."
+        )
+
+    normalized_name = filename.strip().lower()
+
+    extension = ""
+
+    if "." in normalized_name:
+        extension = (
+            "." + normalized_name.rsplit(".", 1)[1]
+        )
+
+    if extension not in ALLOWED_EXTENSIONS:
+        raise ValueError(
+            "Unsupported resume format. "
+            "Only PDF and DOCX files are allowed."
+        )
+
+    if extension == ".pdf":
+        if not content.startswith(b"%PDF"):
+            raise ValueError(
+                "The uploaded file is not a valid PDF."
+            )
+
+    if extension == ".docx":
+        if not content.startswith(b"PK"):
+            raise ValueError(
+                "The uploaded file is not a valid DOCX."
+            )
+
+
 def create_resume_analysis(
     db: Session,
     *,
@@ -21,16 +76,32 @@ def create_resume_analysis(
     content: bytes,
     job_description: str | None,
 ) -> ResumeAnalysis:
+    _validate_resume_file(
+        filename,
+        content,
+    )
+
+    normalized_job_description = (
+        job_description.strip()
+        if job_description
+        else None
+    )
+
     extracted_text = extract_resume_text(
         filename,
         content,
     )
 
+    if not extracted_text.strip():
+        raise ValueError(
+            "Could not extract readable text from the resume."
+        )
+
     analysis = resume_analysis_repository.create(
         db,
         user_id=user_id,
-        file_name=filename or "resume",
-        job_description=job_description,
+        file_name=filename.strip(),
+        job_description=normalized_job_description,
         extracted_text=extracted_text,
     )
 
@@ -74,19 +145,18 @@ def run_ai_analysis(
     db: Session,
     analysis: ResumeAnalysis,
 ) -> ResumeAnalysis:
-    # AI analysis requires a job description.
     if not analysis.job_description:
         raise ValueError(
-            "A job description is required for AI analysis"
+            "A job description is required for AI analysis."
         )
 
-    # Do not call OpenRouter again for an already completed analysis.
     if analysis.status == "completed":
         return analysis
 
-    usage_date = datetime.now(timezone.utc).date()
+    usage_date = datetime.now(
+        timezone.utc
+    ).date()
 
-    # Reserve one shared CareerOS AI quota slot.
     require_ai_call(
         db,
         analysis.user_id,
@@ -94,14 +164,12 @@ def run_ai_analysis(
     )
 
     try:
-        # Call the AI provider.
         result = analyze_resume(
             analysis.extracted_text,
             analysis.job_description,
         )
 
     except Exception:
-        # Provider failure → return the reserved slot.
         refund_ai_call(
             db,
             analysis.user_id,
@@ -109,7 +177,6 @@ def run_ai_analysis(
         )
         raise
 
-    # Store the validated AI result.
     analysis = resume_analysis_repository.save_ai_result(
         db,
         analysis,
