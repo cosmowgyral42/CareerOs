@@ -36,34 +36,58 @@ function Goals() {
 
   const [toast, setToast] = useState(null);
 
-  async function fetchGoals() {
-    try {
-      setIsLoading(true);
-      setError('');
-
-      const data = await getGoals();
-
-      setGoals(
-        Array.isArray(data)
-          ? data
-          : [],
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to load goals.',
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const [reloadKey, setReloadKey] =
+    useState(0);
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    let cancelled = false;
 
-  function showToast(message, type = 'success') {
+    async function loadGoals() {
+      try {
+        const data = await getGoals();
+
+        if (!cancelled) {
+          setGoals(
+            Array.isArray(data)
+              ? data
+              : [],
+          );
+
+          setError('');
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Unable to load goals.',
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadGoals();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
+
+  function retryLoadGoals() {
+    setIsLoading(true);
+    setError('');
+
+    setReloadKey((current) => current + 1);
+  }
+
+  function showToast(
+    message,
+    type = 'success',
+  ) {
     setToast({
       message,
       type,
@@ -88,8 +112,10 @@ function Goals() {
 
     setForm({
       title: goal.title ?? '',
-      description: goal.description ?? '',
-      target_date: goal.target_date ?? '',
+      description:
+        goal.description ?? '',
+      target_date:
+        goal.target_date ?? '',
     });
 
     setError('');
@@ -105,11 +131,12 @@ function Goals() {
     event.preventDefault();
 
     if (!form.title.trim()) {
-      setError('Goal title is required.');
-      showToast(
-        'Goal title is required.',
-        'error',
-      );
+      const message =
+        'Goal title is required.';
+
+      setError(message);
+      showToast(message, 'error');
+
       return;
     }
 
@@ -126,10 +153,11 @@ function Goals() {
       };
 
       if (editingId !== null) {
-        const updated = await updateGoal(
-          editingId,
-          payload,
-        );
+        const updated =
+          await updateGoal(
+            editingId,
+            payload,
+          );
 
         setGoals((current) =>
           current.map((goal) =>
@@ -175,15 +203,16 @@ function Goals() {
     try {
       setError('');
 
-      const updated = await updateGoal(
-        goal.id,
-        {
-          status:
-            goal.status === 'completed'
-              ? 'active'
-              : 'completed',
-        },
-      );
+      const updated =
+        await updateGoal(
+          goal.id,
+          {
+            status:
+              goal.status === 'completed'
+                ? 'active'
+                : 'completed',
+          },
+        );
 
       setGoals((current) =>
         current.map((item) =>
@@ -228,17 +257,21 @@ function Goals() {
       setIsDeleting(true);
       setError('');
 
-      await deleteGoal(goalToDelete.id);
+      await deleteGoal(
+        goalToDelete.id,
+      );
 
       setGoals((current) =>
         current.filter(
           (goal) =>
-            goal.id !== goalToDelete.id,
+            goal.id !==
+            goalToDelete.id,
         ),
       );
 
       if (
-        editingId === goalToDelete.id
+        editingId ===
+        goalToDelete.id
       ) {
         cancelEdit();
       }
@@ -261,10 +294,11 @@ function Goals() {
     }
   }
 
-  const completedCount = goals.filter(
-    (goal) =>
-      goal.status === 'completed',
-  ).length;
+  const completedCount =
+    goals.filter(
+      (goal) =>
+        goal.status === 'completed',
+    ).length;
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -313,7 +347,7 @@ function Goals() {
         <ErrorState
           title="Unable to complete action"
           message={error}
-          onRetry={fetchGoals}
+          onRetry={retryLoadGoals}
         />
       )}
 
@@ -379,14 +413,14 @@ function Goals() {
 
             <div>
               <label
-                htmlFor="goal-date"
+                htmlFor="goal-target-date"
                 className="text-sm font-semibold text-slate-700"
               >
                 Target date
               </label>
 
               <input
-                id="goal-date"
+                id="goal-target-date"
                 name="target_date"
                 type="date"
                 value={form.target_date}
@@ -448,7 +482,7 @@ function Goals() {
             <LoadingState
               message="Loading your goals..."
             />
-          ) : error ? null : goals.length === 0 ? (
+          ) : goals.length === 0 ? (
             <EmptyState
               title="No goals yet"
               message="Create your first career goal."
@@ -457,29 +491,32 @@ function Goals() {
             goals.map((goal) => (
               <article
                 key={goal.id}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
               >
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2
-                        className={`text-lg font-bold ${
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-bold text-slate-900">
+                        {goal.title}
+                      </h3>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           goal.status ===
                           'completed'
-                            ? 'text-slate-400 line-through'
-                            : 'text-slate-900'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-violet-100 text-violet-700'
                         }`}
                       >
-                        {goal.title}
-                      </h2>
-
-                      <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
-                        {goal.status}
+                        {goal.status ===
+                        'completed'
+                          ? 'Completed'
+                          : 'Active'}
                       </span>
                     </div>
 
                     {goal.description && (
-                      <p className="mt-3 text-sm leading-6 text-slate-500">
+                      <p className="mt-2 text-sm leading-6 text-slate-500">
                         {goal.description}
                       </p>
                     )}
@@ -492,7 +529,7 @@ function Goals() {
                     )}
                   </div>
 
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() =>
