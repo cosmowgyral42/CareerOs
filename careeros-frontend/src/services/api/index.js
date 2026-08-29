@@ -2,12 +2,14 @@ export {
   getDashboard,
 } from './dashboardApi';
 
+
 export {
   getGoals,
   createGoal,
   updateGoal,
   deleteGoal,
 } from './goalsApi';
+
 
 export {
   getTasks,
@@ -16,12 +18,14 @@ export {
   deleteTask,
 } from './tasksApi';
 
+
 export {
   getProjects,
   createProject,
   updateProject,
   deleteProject,
 } from './projectsApi';
+
 
 export {
   getApplications,
@@ -30,12 +34,14 @@ export {
   deleteApplication,
 } from './applicationsApi';
 
+
 export {
   getResources,
   createResource,
   updateResource,
   deleteResource,
 } from './resourcesApi';
+
 
 export {
   getMySkills,
@@ -45,11 +51,13 @@ export {
   deleteSkill,
 } from './skillsApi';
 
+
 export {
   getSkillGaps,
   updateSkillGap,
   deleteSkillGap,
 } from './skillGapsApi';
+
 
 export {
   getCareerTargets,
@@ -63,6 +71,7 @@ export {
   deleteTargetSkill,
 } from './careerTargetsApi';
 
+
 export {
   uploadResume,
   analyzeResume,
@@ -70,11 +79,25 @@ export {
   getResumeAnalysis,
 } from './resumeAnalysesApi';
 
+
 export {
   loginUser,
   registerUser,
   getCurrentUser,
 } from './authapi';
+
+export {
+  getMyProfile,
+  updateMyProfile,
+} from './userApi';
+
+export {
+  analyzeCareerFit,
+  getCareerRecommendations,
+  createCareerRecommendation,
+  completeCareerRecommendation,
+} from './careerRecommendationsApi';
+
 
 export {
   getToken,

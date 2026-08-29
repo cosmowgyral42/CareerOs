@@ -24,7 +24,8 @@ import CareerTargets from '../pages/career-targets/CareerTargets';
 import ProtectedRoute from './ProtectedRoute';
 import ResumeAI from '../pages/resume/ResumeAI';
 import ResumeAnalysis from '../pages/resume/ResumeAnalysis';
-
+import CareerRecommendations from '../pages/career-recommendations/CareerRecommendations';
+import ProfileSettings from '../pages/profile/ProfileSettings';
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -99,8 +100,16 @@ function AppRoutes() {
             />
            <Route
              path="/resume-analysis"
-             element={<ResumeAnalysis                 />} 
+             element={<ResumeAnalysis />} 
+           />
+           <Route
+             path="/career-recommendations"
+             element={<CareerRecommendations />}
            /> 
+           <Route
+             path="/profile"
+             element={<ProfileSettings />}
+           />
           </Route>
         </Route>
 

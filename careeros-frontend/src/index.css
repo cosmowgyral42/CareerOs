@@ -50,3 +50,27 @@ a {
 #root {
   min-height: 100vh;
 }
+
+.input-style {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.8rem 1rem;
+  color: #0f172a;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.input-style:focus {
+  border-color: #f472b6;
+  box-shadow:
+    0 0 0 4px
+    rgba(244, 114, 182, 0.12);
+}
+
+.input-style::placeholder {
+  color: #94a3b8;
+}

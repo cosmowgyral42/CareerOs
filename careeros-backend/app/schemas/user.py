@@ -1,12 +1,18 @@
 from datetime import datetime
+from app.utils.timezone import validate_timezone
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+)
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from app.utils.timezone import validate_timezone
 
-
+from pydantic import field_validator
 class UserResponse(BaseModel):
     id: int
     full_name: str
-    email: EmailStr
+    email: str
     target_role: str | None
     graduation_year: int | None
     weekly_hours: int | None
@@ -16,7 +22,9 @@ class UserResponse(BaseModel):
     updated_at: datetime
     timezone: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
 
 
 class UserUpdate(BaseModel):
@@ -47,3 +55,20 @@ class UserUpdate(BaseModel):
         default=None,
         max_length=2000,
     )
+
+    timezone: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=64,
+    )
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_user_timezone(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is None:
+            return value
+
+        return validate_timezone(value)
