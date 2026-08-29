@@ -49,29 +49,70 @@ class OpenRouterProvider:
 
         except RateLimitError as exc:
             raise AIProviderUnavailableError(
-                "Free AI capacity is temporarily unavailable"
+                "Free AI capacity is temporarily unavailable. "
+                "Please try again later."
             ) from exc
 
-        except (APIConnectionError, APITimeoutError) as exc:
+        except APIConnectionError as exc:
             raise AIProviderUnavailableError(
-                "AI provider is temporarily unavailable"
+                "Could not connect to the AI provider."
+            ) from exc
+
+        except APITimeoutError as exc:
+            raise AIProviderUnavailableError(
+                "The AI provider took too long to respond."
             ) from exc
 
         except APIStatusError as exc:
             raise AIProviderUnavailableError(
-                "AI provider could not process the request"
+                f"AI provider request failed with "
+                f"status {exc.status_code}."
             ) from exc
 
-        content = response.choices[0].message.content
+        except Exception as exc:
+            raise AIProviderUnavailableError(
+                "Unexpected AI provider error."
+            ) from exc
+
+        if not response.choices:
+            raise AIProviderUnavailableError(
+                "AI returned no response choices."
+            )
+
+        message = response.choices[0].message
+
+        content = message.content
 
         if not content:
             raise AIProviderUnavailableError(
-                "AI returned an empty response"
+                "AI returned an empty response."
             )
 
+        content = content.strip()
+
+        # Some models wrap JSON inside Markdown fences.
+        if content.startswith("```"):
+            lines = content.splitlines()
+
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+
+            content = "\n".join(lines).strip()
+
         try:
-            return json.loads(content)
+            data = json.loads(content)
+
         except json.JSONDecodeError as exc:
             raise AIProviderUnavailableError(
-                "AI returned an invalid response"
+                "AI returned a response that was not valid JSON."
             ) from exc
+
+        if not isinstance(data, dict):
+            raise AIProviderUnavailableError(
+                "AI returned an invalid response format."
+            )
+
+        return data

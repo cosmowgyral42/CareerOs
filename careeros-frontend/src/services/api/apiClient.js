@@ -3,9 +3,11 @@ import {
   removeToken,
 } from './authStorage';
 
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://127.0.0.1:8000';
+
 
 async function request(
   endpoint,
@@ -17,9 +19,11 @@ async function request(
     options.headers || {},
   );
 
+
   if (
     options.body &&
-    !(options.body instanceof FormData)
+    !(options.body instanceof FormData) &&
+    !headers.has('Content-Type')
   ) {
     headers.set(
       'Content-Type',
@@ -27,12 +31,14 @@ async function request(
     );
   }
 
+
   if (token) {
     headers.set(
       'Authorization',
       `Bearer ${token}`,
     );
   }
+
 
   const response = await fetch(
     `${API_BASE_URL}${endpoint}`,
@@ -42,14 +48,20 @@ async function request(
     },
   );
 
-  const contentType =
-    response.headers.get('content-type') || '';
 
-  const data = contentType.includes(
-    'application/json',
-  )
-    ? await response.json()
-    : null;
+  const contentType =
+    response.headers.get(
+      'content-type',
+    ) || '';
+
+
+  const data =
+    contentType.includes(
+      'application/json',
+    )
+      ? await response.json()
+      : null;
+
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -58,13 +70,16 @@ async function request(
 
     const message =
       data?.detail ||
+      data?.message ||
       `Request failed with status ${response.status}.`;
 
     throw new Error(message);
   }
 
+
   return data;
 }
+
 
 const apiClient = {
   get(endpoint, options = {}) {
@@ -74,7 +89,12 @@ const apiClient = {
     });
   },
 
-  post(endpoint, body, options = {}) {
+
+  post(
+    endpoint,
+    body,
+    options = {},
+  ) {
     return request(endpoint, {
       ...options,
       method: 'POST',
@@ -85,23 +105,35 @@ const apiClient = {
     });
   },
 
-  patch(endpoint, body, options = {}) {
+
+  patch(
+    endpoint,
+    body,
+    options = {},
+  ) {
     return request(endpoint, {
       ...options,
       method: 'PATCH',
       body:
-        body instanceof FormData
-          ? body
-          : JSON.stringify(body),
+        body === undefined
+          ? undefined
+          : body instanceof FormData
+            ? body
+            : JSON.stringify(body),
     });
   },
 
-  delete(endpoint, options = {}) {
+
+  delete(
+    endpoint,
+    options = {},
+  ) {
     return request(endpoint, {
       ...options,
       method: 'DELETE',
     });
   },
 };
+
 
 export default apiClient;

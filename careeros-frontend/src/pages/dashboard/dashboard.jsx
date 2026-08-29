@@ -132,7 +132,7 @@ function Dashboard() {
               </p>
             </div>
 
-            <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] transition group-hover:bg-pink-50 group-hover:text-pink-700">
+            <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620]">
               Open
             </span>
           </div>
@@ -249,7 +249,7 @@ function Dashboard() {
                 </p>
               </div>
 
-              <span className="rounded-xl bg-pink-500 px-4 py-3 text-sm font-bold text-white transition group-hover:bg-pink-600">
+              <span className="rounded-xl bg-pink-500 px-4 py-3 text-sm font-bold text-white">
                 Open applications
               </span>
             </div>
@@ -335,7 +335,7 @@ function DashboardLink({
           </p>
         </div>
 
-        <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620] group-hover:bg-pink-50 group-hover:text-pink-700">
+        <span className="rounded-lg bg-[#FFF8E7] px-3 py-2 text-xs font-bold text-[#9A7620]">
           Open
         </span>
       </div>
@@ -377,7 +377,7 @@ function DashboardFeature({
         </div>
 
         {highlighted && (
-          <div className="rounded-2xl bg-yellow-300 px-4 py-3 font-sans text-sm font-bold text-slate-900 transition group-hover:bg-yellow-400">
+          <div className="rounded-2xl bg-yellow-300 px-4 py-3 font-sans text-sm font-bold text-slate-900">
             Open
           </div>
         )}
@@ -390,7 +390,7 @@ function DashboardFeature({
       )}
 
       {highlighted && (
-        <span className="mt-5 inline-flex rounded-xl bg-pink-500 px-4 py-2 text-sm font-bold text-white transition group-hover:bg-pink-600">
+        <span className="mt-5 inline-flex rounded-xl bg-pink-500 px-4 py-2 text-sm font-bold text-white">
           {button}
         </span>
       )}

@@ -26,8 +26,7 @@ def get_or_create_daily_usage(
     )
 
     db.add(usage)
-    db.commit()
-    db.refresh(usage)
+    db.flush()
 
     return usage
 
@@ -54,8 +53,7 @@ def get_or_create_user_usage(
     )
 
     db.add(usage)
-    db.commit()
-    db.refresh(usage)
+    db.flush()
 
     return usage
 
@@ -77,7 +75,6 @@ def increment_global_usage(
     )
 
     result = db.execute(statement)
-    db.commit()
 
     return result.rowcount == 1
 
@@ -101,7 +98,6 @@ def increment_user_usage(
     )
 
     result = db.execute(statement)
-    db.commit()
 
     return result.rowcount == 1
 

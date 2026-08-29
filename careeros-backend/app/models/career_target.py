@@ -16,7 +16,10 @@ class CareerTarget(TimestampMixin, Base):
     )
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         index=True,
     )
@@ -48,7 +51,7 @@ class CareerTarget(TimestampMixin, Base):
 
     is_active: Mapped[bool] = mapped_column(
         Boolean,
+        nullable=False,
         default=True,
         server_default="true",
-        nullable=False,
     )

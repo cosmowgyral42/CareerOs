@@ -3,13 +3,17 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.repositories import user_repository
 from app.schemas.user import UserUpdate
+from app.utils.timezone import validate_timezone
 
 
 def get_user_by_id(
     db: Session,
     user_id: int,
 ) -> User | None:
-    return user_repository.get_by_id(db, user_id)
+    return user_repository.get_by_id(
+        db,
+        user_id,
+    )
 
 
 def update_user(
@@ -17,8 +21,17 @@ def update_user(
     user: User,
     update_data: UserUpdate,
 ) -> User:
+    data = update_data.model_dump(
+        exclude_unset=True,
+    )
 
-    data = update_data.model_dump(exclude_unset=True)
+    if (
+        "timezone" in data
+        and data["timezone"] is not None
+    ):
+        data["timezone"] = validate_timezone(
+            data["timezone"],
+        )
 
     return user_repository.update(
         db,

@@ -8,18 +8,22 @@ class CareerTargetCreate(BaseModel):
         min_length=1,
         max_length=150,
     )
+
     target_role: str = Field(
         min_length=1,
         max_length=100,
     )
+
     target_level: str | None = Field(
         default=None,
         max_length=50,
     )
+
     description: str | None = Field(
         default=None,
         max_length=5000,
     )
+
     target_date: date | None = None
 
 
@@ -29,20 +33,25 @@ class CareerTargetUpdate(BaseModel):
         min_length=1,
         max_length=150,
     )
+
     target_role: str | None = Field(
         default=None,
         min_length=1,
         max_length=100,
     )
+
     target_level: str | None = Field(
         default=None,
         max_length=50,
     )
+
     description: str | None = Field(
         default=None,
         max_length=5000,
     )
+
     target_date: date | None = None
+
     is_active: bool | None = None
 
 

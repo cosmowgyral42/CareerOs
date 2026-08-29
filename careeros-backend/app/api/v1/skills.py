@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 from app.api.deps import CurrentUser, DatabaseSession
 from app.schemas.user_skill import (
@@ -39,7 +39,7 @@ def add_my_skill(
     db: DatabaseSession,
     current_user: CurrentUser,
 ):
-    skill = user_skill_service.add_skill_to_user(
+    return user_skill_service.add_skill_to_user(
         db,
         user_id=current_user.id,
         name=skill_data.name,
@@ -47,8 +47,6 @@ def add_my_skill(
         description=skill_data.description,
         level=skill_data.level,
     )
-
-    return skill
 
 
 @router.patch(
@@ -97,3 +95,7 @@ def remove_my_skill(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Skill not found",
         )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT,
+    )

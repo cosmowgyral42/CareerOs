@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../context/useAuth';
 
 function Topbar({ onLogout }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const initials =
     user?.full_name
@@ -10,6 +13,10 @@ function Topbar({ onLogout }) {
       .join('')
       .slice(0, 2)
       .toUpperCase() || 'C';
+
+  function handleProfileClick() {
+    navigate('/profile');
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/80 bg-[#F8F9FC]/90 px-4 backdrop-blur sm:px-6">
@@ -26,9 +33,14 @@ function Topbar({ onLogout }) {
           </span>
         )}
 
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-500 text-sm font-semibold text-white">
+        <button
+          type="button"
+          onClick={handleProfileClick}
+          aria-label="Open profile settings"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-500 text-sm font-semibold text-white shadow-sm transition hover:scale-105 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-pink-300 focus:ring-offset-2"
+        >
           {initials}
-        </div>
+        </button>
 
         <button
           type="button"

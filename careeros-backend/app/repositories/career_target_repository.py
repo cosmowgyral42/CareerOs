@@ -6,23 +6,25 @@ from app.models.career_target import CareerTarget
 
 def create(
     db: Session,
+    *,
     user_id: int,
     data: dict,
 ) -> CareerTarget:
-    target = CareerTarget(
+    career_target = CareerTarget(
         user_id=user_id,
         **data,
     )
 
-    db.add(target)
+    db.add(career_target)
     db.commit()
-    db.refresh(target)
+    db.refresh(career_target)
 
-    return target
+    return career_target
 
 
 def get_by_id(
     db: Session,
+    *,
     target_id: int,
     user_id: int,
 ) -> CareerTarget | None:
@@ -34,36 +36,50 @@ def get_by_id(
     return db.scalar(statement)
 
 
-def get_all_by_user(
+def get_all_for_user(
     db: Session,
+    *,
     user_id: int,
 ) -> list[CareerTarget]:
     statement = (
         select(CareerTarget)
-        .where(CareerTarget.user_id == user_id)
-        .order_by(CareerTarget.created_at.desc())
+        .where(
+            CareerTarget.user_id == user_id,
+        )
+        .order_by(
+            CareerTarget.is_active.desc(),
+            CareerTarget.created_at.desc(),
+        )
     )
 
-    return list(db.scalars(statement).all())
+    return list(
+        db.scalars(statement).all()
+    )
 
 
 def update(
     db: Session,
-    target: CareerTarget,
+    *,
+    career_target: CareerTarget,
     data: dict,
 ) -> CareerTarget:
     for field, value in data.items():
-        setattr(target, field, value)
+        setattr(
+            career_target,
+            field,
+            value,
+        )
 
     db.commit()
-    db.refresh(target)
+    db.refresh(career_target)
 
-    return target
+    return career_target
 
 
 def delete(
     db: Session,
-    target: CareerTarget,
+    *,
+    career_target: CareerTarget,
 ) -> None:
-    db.delete(target)
+    db.delete(career_target)
     db.commit()
