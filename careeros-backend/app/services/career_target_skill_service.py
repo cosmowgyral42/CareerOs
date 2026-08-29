@@ -1,8 +1,10 @@
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.career_target_skill import (
     CareerTargetSkill,
 )
+from app.models.skill import Skill
 from app.repositories import (
     career_target_skill_repository,
 )
@@ -22,11 +24,35 @@ def get_target_skills(
     )
 
 
+def get_target_skill(
+    db: Session,
+    *,
+    target_id: int,
+    target_skill_id: int,
+) -> CareerTargetSkill | None:
+    return career_target_skill_repository.get_by_id(
+        db,
+        target_skill_id,
+        target_id,
+    )
+
+
 def add_target_skill(
     db: Session,
     career_target_id: int,
     skill_data: CareerTargetSkillCreate,
 ) -> CareerTargetSkill:
+    skill = db.get(
+        Skill,
+        skill_data.skill_id,
+    )
+
+    if skill is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Skill not found",
+        )
+
     existing = (
         career_target_skill_repository
         .get_by_target_and_skill(

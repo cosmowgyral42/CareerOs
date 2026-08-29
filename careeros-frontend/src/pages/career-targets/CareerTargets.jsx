@@ -437,7 +437,9 @@ export default function CareerTargets() {
 
   function getSkillName(skillId) {
     const skill = skills.find(
-      (item) => item.id === skillId,
+      (item) =>
+        Number(item.skill_id) ===
+        Number(skillId),
     );
 
     return skill?.name || `Skill #${skillId}`;
@@ -773,7 +775,7 @@ export default function CareerTargets() {
       )}
 
       {skillModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-900/50 p-4">
           <form
             onSubmit={handleSkillSubmit}
             className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl"
@@ -823,8 +825,8 @@ export default function CareerTargets() {
 
                   {skills.map((skill) => (
                     <option
-                      key={skill.id}
-                      value={skill.id}
+                      key={skill.skill_id}
+                      value={skill.skill_id}
                     >
                       {skill.name}
                     </option>

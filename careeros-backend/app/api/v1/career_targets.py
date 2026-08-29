@@ -5,7 +5,10 @@ from fastapi import (
     status,
 )
 
-from app.api.deps import CurrentUser, DatabaseSession
+from app.api.deps import (
+    CurrentUser,
+    DatabaseSession,
+)
 from app.schemas.career_target import (
     CareerTargetCreate,
     CareerTargetResponse,
@@ -224,23 +227,14 @@ def update_target_skill(
         )
 
     target_skill = (
-        career_target_skill_service
-        .get_target_skills(
+        career_target_skill_service.get_target_skill(
             db,
-            target_id,
+            target_id=target_id,
+            target_skill_id=target_skill_id,
         )
     )
 
-    matching_skill = next(
-        (
-            item
-            for item in target_skill
-            if item.id == target_skill_id
-        ),
-        None,
-    )
-
-    if matching_skill is None:
+    if target_skill is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Target skill not found",
@@ -248,7 +242,7 @@ def update_target_skill(
 
     return career_target_skill_service.update_target_skill(
         db,
-        matching_skill,
+        target_skill,
         skill_data,
     )
 
@@ -275,23 +269,15 @@ def delete_target_skill(
             detail="Career target not found",
         )
 
-    target_skills = (
-        career_target_skill_service.get_target_skills(
+    target_skill = (
+        career_target_skill_service.get_target_skill(
             db,
-            target_id,
+            target_id=target_id,
+            target_skill_id=target_skill_id,
         )
     )
 
-    matching_skill = next(
-        (
-            item
-            for item in target_skills
-            if item.id == target_skill_id
-        ),
-        None,
-    )
-
-    if matching_skill is None:
+    if target_skill is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Target skill not found",
@@ -299,7 +285,7 @@ def delete_target_skill(
 
     career_target_skill_service.delete_target_skill(
         db,
-        matching_skill,
+        target_skill,
     )
 
     return Response(

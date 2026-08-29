@@ -1,23 +1,29 @@
 import apiClient from './apiClient';
 
-export function getCareerTargets() {
-  return apiClient.get('/api/v1/career-targets');
+
+export async function getCareerTargets() {
+  return apiClient.get(
+    '/api/v1/career-targets',
+  );
 }
 
-export function getCareerTarget(targetId) {
+
+export async function getCareerTarget(targetId) {
   return apiClient.get(
     `/api/v1/career-targets/${targetId}`,
   );
 }
 
-export function createCareerTarget(data) {
+
+export async function createCareerTarget(data) {
   return apiClient.post(
     '/api/v1/career-targets',
     data,
   );
 }
 
-export function updateCareerTarget(
+
+export async function updateCareerTarget(
   targetId,
   data,
 ) {
@@ -27,29 +33,36 @@ export function updateCareerTarget(
   );
 }
 
-export function deleteCareerTarget(targetId) {
+
+export async function deleteCareerTarget(targetId) {
   return apiClient.delete(
     `/api/v1/career-targets/${targetId}`,
   );
 }
 
-export function getTargetSkills(targetId) {
+
+export async function getTargetSkills(targetId) {
   return apiClient.get(
     `/api/v1/career-targets/${targetId}/skills`,
   );
 }
 
-export function addTargetSkill(
+
+export async function addTargetSkill(
   targetId,
   data,
 ) {
   return apiClient.post(
     `/api/v1/career-targets/${targetId}/skills`,
-    data,
+    {
+      skill_id: Number(data.skill_id),
+      importance: data.importance || 'required',
+    },
   );
 }
 
-export function updateTargetSkill(
+
+export async function updateTargetSkill(
   targetId,
   targetSkillId,
   data,
@@ -60,7 +73,8 @@ export function updateTargetSkill(
   );
 }
 
-export function deleteTargetSkill(
+
+export async function deleteTargetSkill(
   targetId,
   targetSkillId,
 ) {
