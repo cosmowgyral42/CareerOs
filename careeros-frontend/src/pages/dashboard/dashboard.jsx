@@ -91,7 +91,7 @@ function Dashboard() {
           Career workspace
         </p>
 
-        <h1 className="mt-2 font-serif text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+        <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
           Your dashboard
         </h1>
 
