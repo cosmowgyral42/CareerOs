@@ -5,7 +5,7 @@ import {
   Routes,
 } from 'react-router-dom';
 
-import AppLayout from '../layouts/AppLayout';
+import AppLayout from '../layouts/AppLayout.jsx';
 
 import Landing from '../pages/landing';
 import Login from '../pages/auth/login';

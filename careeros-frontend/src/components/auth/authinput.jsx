@@ -30,7 +30,7 @@ function AuthInput({
         className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 ${
           error
             ? 'border-red-300 ring-2 ring-red-100'
-            : 'border-slate-200 hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10'
+            : 'border-slate-200 hover:border-slate-300 focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10'
         }`}
       />
 

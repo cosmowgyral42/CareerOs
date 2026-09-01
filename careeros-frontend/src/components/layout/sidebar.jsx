@@ -111,13 +111,14 @@ function Sidebar({
           type="button"
           aria-label="Close navigation menu"
           onClick={onCloseMobileSidebar}
-          className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-[2px] lg:hidden"
         />
       )}
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-pink-100 bg-white shadow-2xl transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-64 lg:translate-x-0 lg:bg-white/80 lg:shadow-none lg:backdrop-blur-xl',
+          'fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-pink-100 bg-white shadow-2xl transition-transform duration-300 ease-out',
+          'lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-64 lg:translate-x-0 lg:bg-white/80 lg:shadow-none lg:backdrop-blur-xl',
           isMobileSidebarOpen
             ? 'translate-x-0'
             : '-translate-x-full',
@@ -247,7 +248,7 @@ function Sidebar({
                         />
                       </span>
 
-                      <span>
+                      <span className="truncate">
                         {item.label}
                       </span>
                     </>

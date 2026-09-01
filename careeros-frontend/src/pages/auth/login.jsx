@@ -76,7 +76,7 @@ function Login() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#F8F9FC]">
         <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" />
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-pink-600" />
 
           <p className="mt-4 text-sm font-medium text-slate-500">
             Loading CareerOS...
@@ -91,7 +91,7 @@ function Login() {
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-10 lg:grid-cols-2">
 
         <section className="hidden lg:block">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-violet-600">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-pink-600">
             CareerOS
           </p>
 
@@ -108,7 +108,7 @@ function Login() {
         <section className="mx-auto w-full max-w-md">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-200/50 sm:p-9">
 
-            <p className="text-sm font-semibold text-violet-600">
+            <p className="text-sm font-semibold text-pink-600">
               CareerOS
             </p>
 
@@ -156,7 +156,7 @@ function Login() {
                   }
                   placeholder="you@example.com"
                   required
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
 
@@ -179,7 +179,7 @@ function Login() {
                   }
                   placeholder="Enter your password"
                   required
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
 
@@ -199,7 +199,7 @@ function Login() {
 
               <Link
                 to="/register"
-                className="font-bold text-violet-600 hover:text-violet-700"
+                className="font-bold text-pink-600 hover:text-pink-700"
               >
                 Create one
               </Link>

@@ -15,9 +15,9 @@ class Settings(BaseSettings):
 
     openrouter_api_key: str | None = None
 
-    openrouter_model: str = (
-        "openrouter/free"
-    )
+    # OpenRouter automatically routes to an available
+    # free model.
+    openrouter_model: str = "openrouter/free"
 
     model_config = SettingsConfigDict(
         env_file=os.getenv(

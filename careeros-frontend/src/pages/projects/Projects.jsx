@@ -242,7 +242,7 @@ function Projects() {
   return (
     <section className="space-y-6">
       <div>
-        <p className="text-sm font-semibold text-violet-600">
+        <p className="text-sm font-semibold text-pink-600">
           Career workspace
         </p>
 
@@ -329,7 +329,7 @@ function Projects() {
                 onChange={(event) =>
                   setTargetDate(event.target.value)
                 }
-                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
               />
             </div>
 
@@ -425,7 +425,7 @@ function Projects() {
                               event.target.value,
                             )
                           }
-                          className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                          className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                         />
                       </div>
 
@@ -435,7 +435,7 @@ function Projects() {
                           onClick={() =>
                             handleUpdate(project.id)
                           }
-                          className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white hover:bg-violet-700"
+                          className="rounded-xl bg-pink-600 px-4 py-2 text-sm font-bold text-white hover:bg-pink-700"
                         >
                           Save changes
                         </button>
@@ -458,7 +458,7 @@ function Projects() {
                               {project.title}
                             </h2>
 
-                            <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold capitalize text-violet-700">
+                            <span className="rounded-full bg-pink-50 px-3 py-1 text-xs font-bold capitalize text-pink-700">
                               {project.status}
                             </span>
                           </div>
@@ -484,7 +484,7 @@ function Projects() {
                                 href={project.repository_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="font-semibold text-violet-600 hover:text-violet-700"
+                                className="font-semibold text-pink-600 hover:text-pink-700"
                               >
                                 Repository
                               </a>
@@ -517,7 +517,7 @@ function Projects() {
                           onClick={() =>
                             startEditing(project)
                           }
-                          className="rounded-xl bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 hover:bg-violet-100"
+                          className="rounded-xl bg-pink-50 px-3 py-2 text-xs font-bold text-pink-700 hover:bg-pink-100"
                         >
                           Edit
                         </button>
@@ -588,7 +588,7 @@ function ProjectInput({
           onChange(event.target.value)
         }
         placeholder={placeholder}
-        className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+        className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
       />
     </div>
   );
@@ -618,7 +618,7 @@ function ProjectTextarea({
         }
         placeholder={placeholder}
         rows={4}
-        className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+        className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
       />
     </div>
   );

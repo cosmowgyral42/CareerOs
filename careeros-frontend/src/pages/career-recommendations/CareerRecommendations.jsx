@@ -180,10 +180,10 @@ function CareerRecommendations() {
 
               {!loadingTargets
                 && careerTargets.length === 0 && (
-                <option value="">
-                  No career targets found
-                </option>
-              )}
+                  <option value="">
+                    No career targets found
+                  </option>
+                )}
 
               {careerTargets.map((target) => (
                 <option

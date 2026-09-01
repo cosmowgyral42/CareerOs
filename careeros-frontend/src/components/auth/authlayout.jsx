@@ -13,13 +13,13 @@ function AuthLayout({
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
         {/* Brand panel */}
         <section className="relative hidden overflow-hidden bg-slate-950 lg:flex lg:flex-col lg:justify-between">
-          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl" />
+          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-pink-600/20 blur-3xl" />
 
-          <div className="absolute -bottom-40 -right-32 size-112 rounded-full bg-indigo-500/20 blur-3xl" />
+          <div className="absolute -bottom-40 -right-32 size-112 rounded-full bg-yellow-400/20 blur-3xl" />
 
           <div className="relative z-10 p-10">
             <Link to="/" className="inline-flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-indigo-500 text-sm font-bold text-white shadow-lg shadow-violet-900/30">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-pink-500 to-rose-500 text-sm font-bold text-white shadow-lg shadow-pink-900/20">
                 C
               </div>
 
@@ -34,7 +34,7 @@ function AuthLayout({
           </div>
 
           <div className="relative z-10 px-10 pb-16">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-violet-400">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pink-400">
               Your career command center
             </p>
 
@@ -80,7 +80,7 @@ function AuthLayout({
           <div className="w-full max-w-md">
             <div className="mb-8 lg:hidden">
               <Link to="/" className="inline-flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-indigo-500 text-sm font-bold text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-pink-500 to-rose-500 text-sm font-bold text-white">
                   C
                 </div>
 
@@ -110,7 +110,7 @@ function AuthLayout({
               {footerText}{' '}
               <Link
                 to={footerLink}
-                className="font-semibold text-violet-600 transition hover:text-violet-700"
+                className="font-semibold text-pink-600 transition hover:text-pink-700"
               >
                 {footerLabel}
               </Link>
