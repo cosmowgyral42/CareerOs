@@ -1,8 +1,8 @@
 function ErrorState({
-  title,
-  message,
-  actionLabel,
-  onAction,
+  title = 'Something went wrong',
+  message = 'An unexpected error occurred.',
+  actionLabel = 'Try again',
+  onRetry,
 }) {
   return (
     <div className="flex min-h-[240px] flex-col items-center justify-center rounded-3xl border border-red-100 bg-red-50 p-8 text-center">
@@ -14,10 +14,10 @@ function ErrorState({
         {message}
       </p>
 
-      {actionLabel && onAction && (
+      {onRetry && (
         <button
           type="button"
-          onClick={onAction}
+          onClick={onRetry}
           className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
         >
           {actionLabel}

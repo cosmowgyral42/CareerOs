@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import EmptyState from '../../components/common/EmptyState';
@@ -35,7 +39,7 @@ function SkillGaps() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  async function loadSkillGaps() {
+  const loadSkillGaps = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -54,11 +58,15 @@ function SkillGaps() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    loadSkillGaps();
-  }, []);
+    const loadInitialSkillGaps = async () => {
+      await loadSkillGaps();
+    };
+
+    void loadInitialSkillGaps();
+  }, [loadSkillGaps]);
 
   async function updateGap(
     skillGapId,

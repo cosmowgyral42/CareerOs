@@ -155,7 +155,6 @@ function Login() {
                     setEmail(event.target.value)
                   }
                   placeholder="you@example.com"
-                  required
                   className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
@@ -178,7 +177,6 @@ function Login() {
                     setPassword(event.target.value)
                   }
                   placeholder="Enter your password"
-                  required
                   className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
