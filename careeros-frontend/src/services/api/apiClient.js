@@ -19,7 +19,6 @@ async function request(
     options.headers || {},
   );
 
-
   if (
     options.body &&
     !(options.body instanceof FormData) &&
@@ -31,7 +30,6 @@ async function request(
     );
   }
 
-
   if (token) {
     headers.set(
       'Authorization',
@@ -39,21 +37,39 @@ async function request(
     );
   }
 
+  let response;
 
-  const response = await fetch(
-    `${API_BASE_URL}${endpoint}`,
-    {
-      ...options,
-      headers,
-    },
-  );
+  try {
+    response = await fetch(
+      `${API_BASE_URL}${endpoint}`,
+      {
+        ...options,
+        headers,
+      },
+    );
+  } catch {
+    throw new Error(
+      'Unable to connect to the CareerOS server.',
+    );
+  }
 
+  if (
+    response.status === 204 ||
+    response.headers.get('content-length') === '0'
+  ) {
+    if (!response.ok) {
+      throw new Error(
+        `Request failed with status ${response.status}.`,
+      );
+    }
+
+    return null;
+  }
 
   const contentType =
     response.headers.get(
       'content-type',
     ) || '';
-
 
   const data =
     contentType.includes(
@@ -61,7 +77,6 @@ async function request(
     )
       ? await response.json()
       : null;
-
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -75,7 +90,6 @@ async function request(
 
     throw new Error(message);
   }
-
 
   return data;
 }
