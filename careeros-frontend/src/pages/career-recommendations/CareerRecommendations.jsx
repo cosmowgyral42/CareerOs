@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 
 import {
   analyzeCareerFit,
+  createProject,
+  createProjectFromSkillGap,
+  createTask,
+  createTaskFromSkillGap,
   getCareerTargets,
 } from '../../services/api';
-
 
 function CareerRecommendations() {
   const [careerTargets, setCareerTargets] = useState([]);
@@ -16,8 +19,20 @@ function CareerRecommendations() {
   const [loadingTargets, setLoadingTargets] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 
-  const [error, setError] = useState('');
+  const [creatingTaskFor, setCreatingTaskFor] =
+    useState(null);
 
+  const [creatingProjectFor, setCreatingProjectFor] =
+    useState(null);
+
+  const [createdTasks, setCreatedTasks] = useState(
+    new Set(),
+  );
+
+  const [createdProjects, setCreatedProjects] =
+    useState(new Set());
+
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -52,8 +67,8 @@ function CareerRecommendations() {
         setCareerTargets([]);
 
         setError(
-          err.message
-            || 'Could not load career targets.',
+          err.message ||
+            'Could not load career targets.',
         );
       } finally {
         if (isMounted) {
@@ -69,12 +84,13 @@ function CareerRecommendations() {
     };
   }, []);
 
-
   async function handleSubmit(event) {
     event.preventDefault();
 
     setError('');
     setResult(null);
+    setCreatedTasks(new Set());
+    setCreatedProjects(new Set());
 
     if (!careerTargetId) {
       setError(
@@ -101,18 +117,168 @@ function CareerRecommendations() {
       setResult(response);
     } catch (err) {
       setError(
-        err.message
-          || 'Career analysis failed. Please try again.',
+        err.message ||
+          'Career analysis failed. Please try again.',
       );
     } finally {
       setAnalyzing(false);
     }
   }
 
+  async function handleCreateSkillGapTask(gap) {
+    if (!gap.skill_gap_id) {
+      setError(
+        `Could not create a task for ${gap.skill}: Skill Gap ID is missing.`,
+      );
+      return;
+    }
+
+    const taskKey = `skill-gap-${gap.skill_gap_id}`;
+
+    try {
+      setCreatingTaskFor(taskKey);
+      setError('');
+
+      await createTaskFromSkillGap(
+        gap.skill_gap_id,
+        {
+          title: `Learn ${gap.skill}`,
+          description: gap.reason,
+          priority:
+            gap.importance?.toLowerCase() === 'high'
+              ? 'high'
+              : gap.importance?.toLowerCase() === 'low'
+                ? 'low'
+                : 'medium',
+        },
+      );
+
+      setCreatedTasks((current) => {
+        const next = new Set(current);
+        next.add(taskKey);
+        return next;
+      });
+    } catch (err) {
+      setError(
+        err.message ||
+          `Could not create a learning task for ${gap.skill}.`,
+      );
+    } finally {
+      setCreatingTaskFor(null);
+    }
+  }
+
+  async function handleCreateRoadmapTask(
+    taskLabel,
+    matchingGap,
+  ) {
+    const taskKey = `roadmap-task-${taskLabel}`;
+
+    try {
+      setCreatingTaskFor(taskKey);
+      setError('');
+
+      if (matchingGap?.skill_gap_id) {
+        await createTaskFromSkillGap(
+          matchingGap.skill_gap_id,
+          {
+            title: taskLabel,
+            description: matchingGap.reason,
+            priority:
+              matchingGap.importance?.toLowerCase() === 'high'
+                ? 'high'
+                : matchingGap.importance?.toLowerCase() ===
+                    'low'
+                  ? 'low'
+                  : 'medium',
+          },
+        );
+      } else {
+        await createTask({
+          title: taskLabel,
+          description:
+            'Recommended action from your AI career roadmap.',
+          priority: 'medium',
+        });
+      }
+
+      setCreatedTasks((current) => {
+        const next = new Set(current);
+        next.add(taskKey);
+        return next;
+      });
+    } catch (err) {
+      setError(
+        err.message ||
+          `Could not create task "${taskLabel}".`,
+      );
+    } finally {
+      setCreatingTaskFor(null);
+    }
+  }
+
+  async function handleCreateProject(
+    projectName,
+    matchingGap,
+  ) {
+    const projectKey = `roadmap-project-${projectName}`;
+
+    try {
+      setCreatingProjectFor(projectKey);
+      setError('');
+
+      if (matchingGap?.skill_gap_id) {
+        await createProjectFromSkillGap(
+          matchingGap.skill_gap_id,
+          {
+            title: projectName,
+            description:
+              'Recommended project from your AI career roadmap.',
+          },
+        );
+      } else {
+        await createProject({
+          title: projectName,
+          description:
+            'Recommended project from your AI career roadmap.',
+        });
+      }
+      setCreatedProjects((current) => {
+        const next = new Set(current);
+        next.add(projectKey);
+        return next;
+      });
+    } catch (err) {
+      setError(
+        err.message ||
+          `Could not create project "${projectName}".`,
+      );
+    } finally {
+      setCreatingProjectFor(null);
+    }
+  }
+
+  function findSkillGapForRoadmapPhase(phase) {
+    if (
+      !phase.skills?.length ||
+      !result?.skill_gaps?.length
+    ) {
+      return null;
+    }
+
+    return (
+      result.skill_gaps.find((gap) =>
+        phase.skills.some(
+          (skill) =>
+            skill.trim().toLowerCase() ===
+            gap.skill.trim().toLowerCase(),
+        ),
+      ) || null
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
-
       <div>
         <p className="text-sm font-semibold text-pink-700">
           AI CAREER INTELLIGENCE
@@ -123,12 +289,11 @@ function CareerRecommendations() {
         </h1>
 
         <p className="mt-2 max-w-2xl text-slate-500">
-          Compare your career target and skills against a real
-          job description to discover your strengths, skill gaps,
-          roadmap, and next best action.
+          Compare your career target and skills against a
+          real job description to discover your strengths,
+          skill gaps, roadmap, and next best action.
         </p>
       </div>
-
 
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -136,23 +301,20 @@ function CareerRecommendations() {
         </div>
       )}
 
-
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
         <h2 className="text-xl font-bold text-slate-900">
           Analyze a Job Opportunity
         </h2>
 
         <p className="mt-1 text-sm text-slate-500">
-          Choose your career target and paste a job description.
+          Choose your career target and paste a job
+          description.
         </p>
-
 
         <form
           onSubmit={handleSubmit}
           className="mt-6 space-y-5"
         >
-
           <div>
             <label
               htmlFor="career-target"
@@ -165,9 +327,7 @@ function CareerRecommendations() {
               id="career-target"
               value={careerTargetId}
               onChange={(event) =>
-                setCareerTargetId(
-                  event.target.value,
-                )
+                setCareerTargetId(event.target.value)
               }
               disabled={loadingTargets || analyzing}
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-pink-500 focus:ring-2 focus:ring-pink-100 disabled:cursor-not-allowed disabled:bg-slate-100"
@@ -178,8 +338,8 @@ function CareerRecommendations() {
                 </option>
               )}
 
-              {!loadingTargets
-                && careerTargets.length === 0 && (
+              {!loadingTargets &&
+                careerTargets.length === 0 && (
                   <option value="">
                     No career targets found
                   </option>
@@ -201,7 +361,6 @@ function CareerRecommendations() {
             </select>
           </div>
 
-
           <div>
             <label
               htmlFor="job-description"
@@ -214,9 +373,7 @@ function CareerRecommendations() {
               id="job-description"
               value={jobDescription}
               onChange={(event) =>
-                setJobDescription(
-                  event.target.value,
-                )
+                setJobDescription(event.target.value)
               }
               disabled={analyzing}
               placeholder="Paste the complete job description here..."
@@ -230,20 +387,17 @@ function CareerRecommendations() {
               </span>
 
               <span>
-                {jobDescription.trim().length}
-                {' '}
-                characters
+                {jobDescription.trim().length} characters
               </span>
             </div>
           </div>
 
-
           <button
             type="submit"
             disabled={
-              analyzing
-              || loadingTargets
-              || careerTargets.length === 0
+              analyzing ||
+              loadingTargets ||
+              careerTargets.length === 0
             }
             className="rounded-xl bg-pink-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -251,18 +405,13 @@ function CareerRecommendations() {
               ? 'Analyzing your career fit...'
               : 'Generate AI Career Insights'}
           </button>
-
         </form>
       </div>
 
-
       {result && (
         <div className="space-y-6">
-
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-
               <div>
                 <p className="text-sm font-semibold text-slate-500">
                   CAREER MATCH SCORE
@@ -277,61 +426,45 @@ function CareerRecommendations() {
                 </p>
               </div>
 
-
               <div className="flex h-28 w-28 items-center justify-center rounded-full border-8 border-pink-100">
-
                 <span className="text-3xl font-bold text-pink-700">
                   {result.match_score}%
                 </span>
-
               </div>
-
             </div>
-
           </div>
 
-
           <div className="grid gap-6 lg:grid-cols-2">
-
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
               <h3 className="text-lg font-bold text-slate-900">
                 Matched Skills
               </h3>
 
               {result.matched_skills?.length > 0 ? (
                 <div className="mt-4 flex flex-wrap gap-2">
-
-                  {result.matched_skills.map(
-                    (skill) => (
-                      <span
-                        key={skill}
-                        className="rounded-full bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-700"
-                      >
-                        {skill}
-                      </span>
-                    ),
-                  )}
-
+                  {result.matched_skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-700"
+                    >
+                      {skill}
+                    </span>
+                  ))}
                 </div>
               ) : (
                 <p className="mt-4 text-sm text-slate-500">
                   No matched skills were identified.
                 </p>
               )}
-
             </div>
 
-
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
               <h3 className="text-lg font-bold text-slate-900">
                 Your Strengths
               </h3>
 
               {result.strengths?.length > 0 ? (
                 <ul className="mt-4 space-y-3">
-
                   {result.strengths.map(
                     (strength, index) => (
                       <li
@@ -342,27 +475,20 @@ function CareerRecommendations() {
                           ✓
                         </span>
 
-                        <span>
-                          {strength}
-                        </span>
+                        <span>{strength}</span>
                       </li>
                     ),
                   )}
-
                 </ul>
               ) : (
                 <p className="mt-4 text-sm text-slate-500">
                   No strengths were identified.
                 </p>
               )}
-
             </div>
-
           </div>
 
-
           <div className="rounded-3xl border border-pink-100 bg-pink-50 p-6">
-
             <p className="text-sm font-bold text-pink-700">
               AI CAREER INSIGHT
             </p>
@@ -370,185 +496,265 @@ function CareerRecommendations() {
             <p className="mt-3 leading-7 text-slate-700">
               {result.career_insight}
             </p>
-
           </div>
 
-
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
             <h3 className="text-xl font-bold text-slate-900">
               Priority Skill Gaps
             </h3>
 
             <div className="mt-5 space-y-4">
-
               {result.skill_gaps?.length > 0 ? (
                 result.skill_gaps.map(
-                  (gap, index) => (
-                    <div
-                      key={`${gap.skill}-${index}`}
-                      className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
-                    >
+                  (gap, index) => {
+                    const taskKey = `skill-gap-${gap.skill_gap_id}`;
 
-                      <div className="flex flex-col justify-between gap-2 sm:flex-row">
+                    return (
+                      <div
+                        key={`${gap.skill}-${index}`}
+                        className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
+                      >
+                        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                          <div>
+                            <div className="flex items-center gap-3">
+                              <h4 className="font-bold text-slate-900">
+                                {gap.skill}
+                              </h4>
 
-                        <h4 className="font-bold text-slate-900">
-                          {gap.skill}
-                        </h4>
+                              <span className="text-xs font-bold uppercase tracking-wide text-pink-700">
+                                {gap.importance}
+                              </span>
+                            </div>
 
-                        <span className="text-xs font-bold uppercase tracking-wide text-pink-700">
-                          {gap.importance}
-                        </span>
+                            <p className="mt-2 text-sm leading-6 text-slate-600">
+                              {gap.reason}
+                            </p>
+                          </div>
 
+                          {createdTasks.has(taskKey) ? (
+                            <span className="shrink-0 rounded-lg bg-green-100 px-3 py-2 text-xs font-bold text-green-700">
+                              ✓ Learning task created
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleCreateSkillGapTask(
+                                  gap,
+                                )
+                              }
+                              disabled={
+                                !gap.skill_gap_id ||
+                                creatingTaskFor === taskKey
+                              }
+                              className="shrink-0 rounded-lg bg-pink-700 px-3 py-2 text-xs font-bold text-white transition hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {creatingTaskFor === taskKey
+                                ? 'Creating...'
+                                : 'Create Learning Task'}
+                            </button>
+                          )}
+                        </div>
                       </div>
-
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        {gap.reason}
-                      </p>
-
-                    </div>
-                  ),
+                    );
+                  },
                 )
               ) : (
                 <p className="text-sm text-slate-500">
                   No major skill gaps were identified.
                 </p>
               )}
-
             </div>
-
           </div>
 
-
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
             <h3 className="text-xl font-bold text-slate-900">
               Your Career Roadmap
             </h3>
 
             <div className="mt-6 space-y-5">
-
               {result.roadmap?.length > 0 ? (
                 result.roadmap.map(
-                  (phase, index) => (
-                    <div
-                      key={`${phase.title}-${index}`}
-                      className="rounded-2xl border border-slate-200 p-5"
-                    >
+                  (phase, index) => {
+                    const matchingGap =
+                      findSkillGapForRoadmapPhase(
+                        phase,
+                      );
 
-                      <div className="flex items-start gap-4">
+                    return (
+                      <div
+                        key={`${phase.title}-${index}`}
+                        className="rounded-2xl border border-slate-200 p-5"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-100 text-sm font-bold text-pink-700">
+                            {index + 1}
+                          </div>
 
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-100 text-sm font-bold text-pink-700">
-                          {index + 1}
-                        </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-slate-900">
+                              {phase.title}
+                            </h4>
 
+                            <p className="mt-2 text-sm leading-6 text-slate-600">
+                              {phase.objective}
+                            </p>
 
-                        <div className="min-w-0 flex-1">
+                            {phase.skills?.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                                  Skills
+                                </p>
 
-                          <h4 className="font-bold text-slate-900">
-                            {phase.title}
-                          </h4>
-
-                          <p className="mt-2 text-sm leading-6 text-slate-600">
-                            {phase.objective}
-                          </p>
-
-
-                          {phase.skills?.length > 0 && (
-                            <div className="mt-4">
-
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                                Skills
-                              </p>
-
-                              <div className="mt-2 flex flex-wrap gap-2">
-
-                                {phase.skills.map(
-                                  (skill) => (
-                                    <span
-                                      key={skill}
-                                      className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
-                                    >
-                                      {skill}
-                                    </span>
-                                  ),
-                                )}
-
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {phase.skills.map(
+                                    (skill) => (
+                                      <span
+                                        key={skill}
+                                        className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                                      >
+                                        {skill}
+                                      </span>
+                                    ),
+                                  )}
+                                </div>
                               </div>
+                            )}
 
-                            </div>
-                          )}
+                            {phase.recommended_projects
+                              ?.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                                  Recommended Projects
+                                </p>
 
+                                <ul className="mt-2 space-y-3 text-sm text-slate-600">
+                                  {phase.recommended_projects.map(
+                                    (
+                                      project,
+                                      projectIndex,
+                                    ) => {
+                                      const projectKey =
+                                        `roadmap-project-${project}`;
 
-                          {phase.recommended_projects?.length > 0 && (
-                            <div className="mt-4">
+                                      return (
+                                        <li
+                                          key={`${project}-${projectIndex}`}
+                                          className="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+                                        >
+                                          <span>
+                                            • {project}
+                                          </span>
 
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                                Recommended Projects
-                              </p>
+                                          {createdProjects.has(
+                                            projectKey,
+                                          ) ? (
+                                            <span className="shrink-0 rounded-lg bg-green-100 px-3 py-2 text-xs font-bold text-green-700">
+                                              ✓ Project created
+                                            </span>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                handleCreateProject(
+                                                  project,
+                                                  findSkillGapForRoadmapPhase(phase),
+                                                )
+                                              }
+                                              disabled={
+                                                creatingProjectFor ===
+                                                projectKey
+                                              }
+                                              className="shrink-0 rounded-lg bg-pink-700 px-3 py-2 text-xs font-bold text-white transition hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                            >
+                                              {creatingProjectFor ===
+                                              projectKey
+                                                ? 'Creating...'
+                                                : 'Create Project'}
+                                            </button>
+                                          )}
+                                        </li>
+                                      );
+                                    },
+                                  )}
+                                </ul>
+                              </div>
+                            )}
 
-                              <ul className="mt-2 space-y-1 text-sm text-slate-600">
+                            {phase.recommended_tasks
+                              ?.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                                  Recommended Actions
+                                </p>
 
-                                {phase.recommended_projects.map(
-                                  (project, projectIndex) => (
-                                    <li
-                                      key={`${project}-${projectIndex}`}
-                                    >
-                                      • {project}
-                                    </li>
-                                  ),
-                                )}
+                                <ul className="mt-2 space-y-3 text-sm text-slate-600">
+                                  {phase.recommended_tasks.map(
+                                    (
+                                      task,
+                                      taskIndex,
+                                    ) => {
+                                      const taskKey =
+                                        `roadmap-task-${task}`;
 
-                              </ul>
+                                      return (
+                                        <li
+                                          key={`${task}-${taskIndex}`}
+                                          className="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+                                        >
+                                          <span>
+                                            • {task}
+                                          </span>
 
-                            </div>
-                          )}
-
-
-                          {phase.recommended_tasks?.length > 0 && (
-                            <div className="mt-4">
-
-                              <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                                Recommended Actions
-                              </p>
-
-                              <ul className="mt-2 space-y-1 text-sm text-slate-600">
-
-                                {phase.recommended_tasks.map(
-                                  (task, taskIndex) => (
-                                    <li
-                                      key={`${task}-${taskIndex}`}
-                                    >
-                                      • {task}
-                                    </li>
-                                  ),
-                                )}
-
-                              </ul>
-
-                            </div>
-                          )}
-
+                                          {createdTasks.has(
+                                            taskKey,
+                                          ) ? (
+                                            <span className="shrink-0 rounded-lg bg-green-100 px-3 py-2 text-xs font-bold text-green-700">
+                                              ✓ Task created
+                                            </span>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                handleCreateRoadmapTask(
+                                                  task,
+                                                  matchingGap,
+                                                )
+                                              }
+                                              disabled={
+                                                creatingTaskFor ===
+                                                taskKey
+                                              }
+                                              className="shrink-0 rounded-lg bg-pink-700 px-3 py-2 text-xs font-bold text-white transition hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                            >
+                                              {creatingTaskFor ===
+                                              taskKey
+                                                ? 'Creating...'
+                                                : 'Create Task'}
+                                            </button>
+                                          )}
+                                        </li>
+                                      );
+                                    },
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </div>
-
                       </div>
-
-                    </div>
-                  ),
+                    );
+                  },
                 )
               ) : (
                 <p className="text-sm text-slate-500">
                   No roadmap was generated.
                 </p>
               )}
-
             </div>
-
           </div>
 
-
           <div className="rounded-3xl bg-slate-900 p-6 text-white">
-
             <p className="text-sm font-bold uppercase tracking-wide text-pink-300">
               Your Next Best Action
             </p>
@@ -556,15 +762,11 @@ function CareerRecommendations() {
             <p className="mt-3 text-lg leading-7">
               {result.next_action}
             </p>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 }
-
 
 export default CareerRecommendations;

@@ -1,11 +1,27 @@
-from sqlalchemy import ForeignKey, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
-
+from __future__ import annotations
+from sqlalchemy import (
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.models.skill import Skill
 from app.models.base import Base, TimestampMixin
 
 
 class SkillGap(TimestampMixin, Base):
     __tablename__ = "skill_gaps"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "career_target_id",
+            "skill_id",
+            name="uq_skill_gaps_user_target_skill",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(
         Integer,
@@ -14,25 +30,40 @@ class SkillGap(TimestampMixin, Base):
     )
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         index=True,
     )
 
     career_target_id: Mapped[int] = mapped_column(
-        ForeignKey("career_targets.id", ondelete="CASCADE"),
+        ForeignKey(
+            "career_targets.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         index=True,
     )
 
     skill_id: Mapped[int] = mapped_column(
-        ForeignKey("skills.id", ondelete="CASCADE"),
+        ForeignKey(
+            "skills.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         index=True,
     )
+    skill: Mapped["Skill"] = relationship(
+        "Skill",
+    )
 
     goal_id: Mapped[int | None] = mapped_column(
-        ForeignKey("goals.id", ondelete="SET NULL"),
+        ForeignKey(
+            "goals.id",
+            ondelete="SET NULL",
+        ),
         nullable=True,
         index=True,
     )
@@ -55,3 +86,6 @@ class SkillGap(TimestampMixin, Base):
         Text,
         nullable=True,
     )
+    @property
+    def skill_name(self) -> str:
+        return self.skill.name

@@ -1,6 +1,16 @@
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Response,
+    status,
+)
 
-from app.api.deps import CurrentUser, DatabaseSession
+from app.api.deps import (
+    CurrentUser,
+    DatabaseSession,
+)
+from app.models.career_target import CareerTarget
+from app.models.skill import Skill
 from app.schemas.skill_gap import (
     SkillGapCreate,
     SkillGapResponse,
@@ -25,6 +35,32 @@ def create_skill_gap(
     db: DatabaseSession,
     current_user: CurrentUser,
 ):
+    career_target = db.get(
+        CareerTarget,
+        skill_gap_data.career_target_id,
+    )
+
+    if (
+        career_target is None
+        or career_target.user_id
+        != current_user.id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Career target not found",
+        )
+
+    skill = db.get(
+        Skill,
+        skill_gap_data.skill_id,
+    )
+
+    if skill is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Skill not found",
+        )
+
     return skill_gap_service.create_skill_gap(
         db,
         current_user.id,

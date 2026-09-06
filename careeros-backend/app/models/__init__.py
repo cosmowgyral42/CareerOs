@@ -16,6 +16,8 @@ from app.models.career_recommendation import CareerRecommendation
 from app.models.user_skill import UserSkill
 from app.models.ai_usage import AIUsage
 from app.models.user_ai_usage import UserAIUsage
+from app.models.skill_gap_task import SkillGapTask
+from app.models.skill_gap_project import SkillGapProject
 __all__ = [
     "Base",
     "User",
@@ -35,4 +37,6 @@ __all__ = [
     "UserSkill",
     "AIUsage",
     "UserAIUsage",
+    "SkillGapTask"
+    "SkillGapProject",
 ]

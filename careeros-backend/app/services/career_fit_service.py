@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.career_target import CareerTarget
 from app.repositories import career_fit_repository
+from app.services import skill_gap_service
 from app.services.ai_career_fit_service import (
     analyze_career_fit,
 )
@@ -21,24 +22,15 @@ def analyze_career_fit_for_user(
     job_description: str,
     user_skills: list[str],
 ):
-    usage_date = datetime.now(
-        timezone.utc,
-    ).date()
+    usage_date = datetime.now(timezone.utc).date()
 
-    # Reserve one AI call before contacting the provider.
-    require_ai_call(
-        db,
-        user_id,
-        usage_date,
-    )
+    require_ai_call(db, user_id, usage_date)
 
     try:
         result = analyze_career_fit(
             target_role=career_target.target_role,
             target_level=career_target.target_level,
-            target_description=(
-                career_target.description
-            ),
+            target_description=career_target.description,
             user_skills=user_skills,
             job_description=job_description,
         )
@@ -66,38 +58,58 @@ def analyze_career_fit_for_user(
             ],
         ]
 
-        return (
-            career_fit_repository.create_job_match(
+        synchronized_skill_gaps = (
+            skill_gap_service
+            .synchronize_ai_skill_gaps(
                 db,
                 user_id=user_id,
                 career_target_id=career_target.id,
-                company_name=result.company_name,
-                job_title=result.job_title,
-                job_description=job_description,
-                match_score=float(
-                    result.match_score
-                ),
-                matched_skills=(
-                    result.matched_skills
-                ),
-                missing_skills=missing_skills,
-                skill_gaps=skill_gaps,
-                strengths=result.strengths,
-                career_insight=(
-                    result.career_insight
-                ),
-                roadmap=roadmap,
-                next_action=result.next_action,
-                recommendations=recommendations,
+                ai_skill_gaps=result.skill_gaps,
             )
         )
 
-    except Exception:
-        # The AI call failed after quota reservation.
-        # Return the reserved call to the user.
-        refund_ai_call(
+        for skill_gap in skill_gaps:
+            normalized_name = (
+                skill_gap["skill"]
+                .strip()
+                .casefold()
+            )
+
+            persisted_skill_gap = (
+                synchronized_skill_gaps.get(
+                    normalized_name
+                )
+            )
+
+            if persisted_skill_gap is not None:
+                skill_gap["skill_gap_id"] = (
+                    persisted_skill_gap.id
+                )
+
+        job_match = career_fit_repository.add_job_match(
             db,
-            user_id,
-            usage_date,
+            user_id=user_id,
+            career_target_id=career_target.id,
+            company_name=result.company_name,
+            job_title=result.job_title,
+            job_description=job_description,
+            match_score=float(result.match_score),
+            matched_skills=result.matched_skills,
+            missing_skills=missing_skills,
+            skill_gaps=skill_gaps,
+            strengths=result.strengths,
+            career_insight=result.career_insight,
+            roadmap=roadmap,
+            next_action=result.next_action,
+            recommendations=recommendations,
         )
+
+        db.commit()
+        db.refresh(job_match)
+
+        return job_match
+
+    except Exception:
+        db.rollback()
+        refund_ai_call(db, user_id, usage_date)
         raise

@@ -1,9 +1,10 @@
-import apiClient from './apiClient';
+import apiClient, {
+  getErrorMessage,
+} from './apiClient';
+
 import { setToken } from './authStorage';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://127.0.0.1:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 export async function registerUser(userData) {
   return apiClient.post(
@@ -18,27 +19,62 @@ export async function loginUser(
 ) {
   const formData = new URLSearchParams();
 
-  formData.set('username', email);
-  formData.set('password', password);
-
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/auth/login`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type':
-          'application/x-www-form-urlencoded',
-      },
-      body: formData.toString(),
-    },
+  formData.set(
+    'username',
+    email.trim(),
   );
 
-  const data = await response.json();
+  formData.set(
+    'password',
+    password,
+  );
+
+  let response;
+
+  try {
+    response = await fetch(
+      `${API_BASE_URL}/api/v1/auth/login`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type':
+            'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: formData.toString(),
+      },
+    );
+  } catch {
+    throw new Error(
+      'Unable to connect to the CareerOS server.',
+    );
+  }
+
+  const contentType =
+    response.headers.get('content-type') || '';
+
+  let data = null;
+
+  if (
+    contentType.includes(
+      'application/json',
+    )
+  ) {
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+  }
 
   if (!response.ok) {
     throw new Error(
-      data?.detail ||
-        `Login failed with status ${response.status}.`,
+      getErrorMessage(
+        data,
+        response.status === 401
+          ? 'Invalid email or password.'
+          : `Login failed with status ${response.status}.`,
+      ),
     );
   }
 
@@ -54,5 +90,7 @@ export async function loginUser(
 }
 
 export async function getCurrentUser() {
-  return apiClient.get('/api/v1/users/me');
+  return apiClient.get(
+    '/api/v1/users/me',
+  );
 }

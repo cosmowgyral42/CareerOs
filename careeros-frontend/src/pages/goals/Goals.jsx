@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   createGoal,
@@ -35,6 +39,7 @@ function Goals() {
     useState(false);
 
   const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
 
   const [reloadKey, setReloadKey] =
     useState(0);
@@ -77,6 +82,18 @@ function Goals() {
     };
   }, [reloadKey]);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        window.clearTimeout(
+          toastTimerRef.current,
+        );
+      }
+    };
+  }, []);
+
+
+
   function retryLoadGoals() {
     setIsLoading(true);
     setError('');
@@ -88,15 +105,23 @@ function Goals() {
     message,
     type = 'success',
   ) {
-    setToast({
-      message,
-      type,
-    });
+    if (toastTimerRef.current) {
+      window.clearTimeout(
+        toastTimerRef.current,
+    );
+  }
 
+  setToast({
+    message,
+    type,
+  });
+
+  toastTimerRef.current =
     window.setTimeout(() => {
       setToast(null);
+      toastTimerRef.current = null;
     }, 3000);
-  }
+}
 
   function handleChange(event) {
     const { name, value } = event.target;

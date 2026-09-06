@@ -9,6 +9,58 @@ const API_BASE_URL =
   'http://127.0.0.1:8000';
 
 
+function getNonEmptyString(value) {
+  return typeof value === 'string' && value.trim()
+    ? value.trim()
+    : null;
+}
+
+
+export function getErrorMessage(
+  data,
+  fallbackMessage,
+) {
+  const errorMessage = getNonEmptyString(
+    data?.error?.message,
+  );
+
+  if (errorMessage) {
+    return errorMessage;
+  }
+
+  const detailMessage = getNonEmptyString(
+    data?.detail,
+  );
+
+  if (detailMessage) {
+    return detailMessage;
+  }
+
+  if (Array.isArray(data?.detail)) {
+    const validationMessages = data.detail
+      .map((item) => {
+        if (typeof item === 'object' && item !== null) {
+          return (
+            getNonEmptyString(item.msg) ||
+            getNonEmptyString(item.message)
+          );
+        }
+
+        return getNonEmptyString(item);
+      })
+      .filter(Boolean);
+
+    if (validationMessages.length) {
+      return validationMessages.join('; ');
+    }
+  }
+
+  const message = getNonEmptyString(data?.message);
+
+  return message || fallbackMessage;
+}
+
+
 async function request(
   endpoint,
   options = {},
@@ -59,7 +111,10 @@ async function request(
   ) {
     if (!response.ok) {
       throw new Error(
-        `Request failed with status ${response.status}.`,
+        getErrorMessage(
+          null,
+          `Request failed with status ${response.status}.`,
+        ),
       );
     }
 
@@ -83,12 +138,12 @@ async function request(
       removeToken();
     }
 
-    const message =
-      data?.detail ||
-      data?.message ||
-      `Request failed with status ${response.status}.`;
-
-    throw new Error(message);
+    throw new Error(
+      getErrorMessage(
+        data,
+        `Request failed with status ${response.status}.`,
+      ),
+    );
   }
 
   return data;
