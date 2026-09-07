@@ -56,3 +56,8 @@ export async function createProjectFromSkillGap(
     data,
   );
 }
+export async function getCareerFitHistory() {
+  return apiClient.get(
+    '/api/v1/career-recommendations/analysis-history',
+  );
+}

@@ -98,6 +98,7 @@ export {
   completeCareerRecommendation,
   createTaskFromSkillGap,
   createProjectFromSkillGap,
+  getCareerFitHistory,
 } from './careerRecommendationsApi';
 
 

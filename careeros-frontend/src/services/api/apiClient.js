@@ -138,12 +138,16 @@ async function request(
       removeToken();
     }
 
-    throw new Error(
+    const error = new Error(
       getErrorMessage(
         data,
         `Request failed with status ${response.status}.`,
       ),
     );
+
+    error.status = response.status;
+
+    throw error;
   }
 
   return data;

@@ -8,6 +8,9 @@ from fastapi import (
 
 from app.api.deps import CurrentUser, DatabaseSession
 from app.models.career_target import CareerTarget
+from app.repositories.career_fit_repository import (
+    get_user_matches,
+)
 from app.schemas.career_fit import (
     CareerFitAnalyzeRequest,
     CareerFitResponse,
@@ -23,7 +26,6 @@ from app.services import (
 from app.services.user_skill_service import (
     get_user_skill_names,
 )
-
 
 router = APIRouter(
     prefix="/career-recommendations",
@@ -105,6 +107,57 @@ def analyze_career_fit(
         "next_action":
             result.next_action or "",
     }
+
+
+@router.get(
+    "/analysis-history",
+    response_model=list[CareerFitResponse],
+)
+def get_career_fit_history(
+    db: DatabaseSession,
+    current_user: CurrentUser,
+):
+    matches = get_user_matches(
+        db,
+        user_id=current_user.id,
+    )
+
+    return [
+        {
+            "id": match.id,
+            "career_target_id":
+                match.career_target_id,
+            "job_description":
+                match.job_description,
+            "company_name":
+                match.company_name,
+            "job_title":
+                match.job_title,
+            "match_score":
+                int(match.match_score or 0),
+            "matched_skills":
+                json.loads(
+                    match.matched_skills or "[]"
+                ),
+            "skill_gaps":
+                json.loads(
+                    match.skill_gaps or "[]"
+                ),
+            "strengths":
+                json.loads(
+                    match.strengths or "[]"
+                ),
+            "career_insight":
+                match.career_insight or "",
+            "roadmap":
+                json.loads(
+                    match.roadmap or "[]"
+                ),
+            "next_action":
+                match.next_action or "",
+        }
+        for match in matches
+    ]
 
 
 @router.post(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   analyzeCareerFit,
@@ -7,6 +7,7 @@ import {
   createTask,
   createTaskFromSkillGap,
   getCareerTargets,
+  getCareerFitHistory,
 } from '../../services/api';
 
 function CareerRecommendations() {
@@ -15,20 +16,21 @@ function CareerRecommendations() {
   const [jobDescription, setJobDescription] = useState('');
 
   const [result, setResult] = useState(null);
+  const [selectedHistoryId, setSelectedHistoryId] =
+    useState(null);
+  const [analysisHistory, setAnalysisHistory] = useState([]);
+  const resultViewerRef = useRef(null);
+  const [loadingHistory, setLoadingHistory] = useState(true);
 
   const [loadingTargets, setLoadingTargets] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 
   const [creatingTaskFor, setCreatingTaskFor] =
     useState(null);
-
   const [creatingProjectFor, setCreatingProjectFor] =
     useState(null);
 
-  const [createdTasks, setCreatedTasks] = useState(
-    new Set(),
-  );
-
+  const [createdTasks, setCreatedTasks] = useState(new Set());
   const [createdProjects, setCreatedProjects] =
     useState(new Set());
 
@@ -77,7 +79,34 @@ function CareerRecommendations() {
       }
     }
 
+    async function loadAnalysisHistory() {
+      try {
+        setLoadingHistory(true);
+
+        const history = await getCareerFitHistory();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAnalysisHistory(
+          Array.isArray(history) ? history : [],
+        );
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+
+        setAnalysisHistory([]);
+      } finally {
+        if (isMounted) {
+          setLoadingHistory(false);
+        }
+      }
+    }
+
     loadCareerTargets();
+    loadAnalysisHistory();
 
     return () => {
       isMounted = false;
@@ -89,6 +118,7 @@ function CareerRecommendations() {
 
     setError('');
     setResult(null);
+    setSelectedHistoryId(null);
     setCreatedTasks(new Set());
     setCreatedProjects(new Set());
 
@@ -115,14 +145,25 @@ function CareerRecommendations() {
       });
 
       setResult(response);
+      setSelectedHistoryId(null);
     } catch (err) {
-      setError(
-        err.message ||
-          'Career analysis failed. Please try again.',
-      );
+      if (err.status === 429) {
+        setError(
+          'Daily AI analysis limit reached. Your limit resets at 00:00 UTC. Please try again tomorrow.',
+        );
+      } else {
+        setError(
+          err.message ||
+            'Career analysis failed. Please try again.',
+        );
+      }
     } finally {
       setAnalyzing(false);
     }
+  }
+
+  function handleViewSkillGap(skillGapId) {
+    window.location.href = `/skill-gaps?skillGapId=${skillGapId}`;
   }
 
   async function handleCreateSkillGapTask(gap) {
@@ -243,6 +284,7 @@ function CareerRecommendations() {
             'Recommended project from your AI career roadmap.',
         });
       }
+
       setCreatedProjects((current) => {
         const next = new Set(current);
         next.add(projectKey);
@@ -275,6 +317,28 @@ function CareerRecommendations() {
         ),
       ) || null
     );
+  }
+
+  function handleSelectHistory(analysis) {
+    setError('');
+    setResult(analysis);
+    setSelectedHistoryId(analysis.id);
+    setCreatedTasks(new Set());
+    setCreatedProjects(new Set());
+
+    requestAnimationFrame(() => {
+      resultViewerRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }
+
+  function handleClearSelectedHistory() {
+    setResult(null);
+    setSelectedHistoryId(null);
+    setCreatedTasks(new Set());
+    setCreatedProjects(new Set());
   }
 
   return (
@@ -399,18 +463,128 @@ function CareerRecommendations() {
               loadingTargets ||
               careerTargets.length === 0
             }
-            className="rounded-xl bg-pink-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-busy={analyzing}
+            className="rounded-xl bg-pink-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {analyzing
-              ? 'Analyzing your career fit...'
-              : 'Generate AI Career Insights'}
+            {analyzing ? (
+              <span className="flex items-center justify-center gap-2">
+                <span
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                  aria-hidden="true"
+                />
+                Analyzing your career fit...
+              </span>
+            ) : (
+              'Generate AI Career Insights'
+            )}
           </button>
+
+          {analyzing && (
+            <p
+              className="flex items-center gap-2 text-sm text-slate-500"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="h-2 w-2 animate-pulse rounded-full bg-pink-600" />
+              AI is analyzing the job description and comparing it with your career profile...
+            </p>
+          )}
         </form>
       </div>
 
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5">
+          <h2 className="text-xl font-semibold text-slate-900">
+            Analysis History
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Review your previous AI career-fit analyses.
+          </p>
+        </div>
+
+        {loadingHistory ? (
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            <span
+              className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-pink-600"
+              aria-hidden="true"
+            />
+            Loading analysis history...
+          </div>
+        ) : analysisHistory.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            No previous career analyses found.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {analysisHistory.map((analysis) => (
+              <button
+                key={analysis.id}
+                type="button"
+                onClick={() => handleSelectHistory(analysis)}
+                className={`w-full rounded-xl border p-4 text-left transition ${
+                  selectedHistoryId === analysis.id
+                    ? 'border-pink-400 bg-pink-50 shadow-sm'
+                    : 'border-slate-200 hover:border-pink-300 hover:bg-pink-50/30'
+                }`}
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="font-semibold text-slate-900">
+                      {analysis.job_title ||
+                        'Career Analysis'}
+                    </h3>
+
+                    <p className="text-sm text-slate-500">
+                      {analysis.company_name ||
+                        'Company not specified'}
+                    </p>
+
+                    {selectedHistoryId === analysis.id && (
+                      <span className="mt-2 inline-flex rounded-full bg-pink-100 px-2.5 py-1 text-xs font-bold text-pink-700">
+                        Currently viewing
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="rounded-full bg-pink-50 px-3 py-1 text-sm font-semibold text-pink-700">
+                    {analysis.match_score}% match
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
       {result && (
-        <div className="space-y-6">
+        <div
+          ref={resultViewerRef}
+          className="scroll-mt-6 space-y-6"
+        >
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            {selectedHistoryId && (
+              <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-pink-200 bg-pink-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-bold text-pink-700">
+                    SAVED ANALYSIS
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-600">
+                    You are viewing a previous career-fit analysis.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleClearSelectedHistory}
+                  className="shrink-0 rounded-lg border border-pink-300 bg-white px-3 py-2 text-xs font-bold text-pink-700 transition hover:bg-pink-100"
+                >
+                  Back to New Analysis
+                </button>
+              </div>
+            )}
+
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
               <div>
                 <p className="text-sm font-semibold text-slate-500">
@@ -529,6 +703,20 @@ function CareerRecommendations() {
                             <p className="mt-2 text-sm leading-6 text-slate-600">
                               {gap.reason}
                             </p>
+
+                            {gap.skill_gap_id && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleViewSkillGap(
+                                    gap.skill_gap_id,
+                                  )
+                                }
+                                className="mt-3 text-sm font-bold text-pink-700 transition hover:text-pink-800 hover:underline"
+                              >
+                                View Skill Gap →
+                              </button>
+                            )}
                           </div>
 
                           {createdTasks.has(taskKey) ? (
@@ -572,6 +760,13 @@ function CareerRecommendations() {
               Your Career Roadmap
             </h3>
 
+            <p className="mt-1 text-sm text-slate-500">
+              Turn recommended actions into real tasks and
+              projects. When a roadmap phase matches a skill
+              gap, the created item will stay linked to that
+              skill gap.
+            </p>
+
             <div className="mt-6 space-y-5">
               {result.roadmap?.length > 0 ? (
                 result.roadmap.map(
@@ -599,6 +794,24 @@ function CareerRecommendations() {
                             <p className="mt-2 text-sm leading-6 text-slate-600">
                               {phase.objective}
                             </p>
+
+                            {matchingGap?.skill_gap_id && (
+                              <div className="mt-4 rounded-xl border border-pink-100 bg-pink-50 p-3">
+                                <p className="text-xs font-bold uppercase tracking-wide text-pink-700">
+                                  Linked Skill Gap
+                                </p>
+
+                                <p className="mt-1 text-sm font-semibold text-slate-800">
+                                  {matchingGap.skill}
+                                </p>
+
+                                <p className="mt-1 text-xs text-slate-500">
+                                  Tasks and projects created from
+                                  this phase will be linked to this
+                                  Skill Gap.
+                                </p>
+                              </div>
+                            )}
 
                             {phase.skills?.length > 0 && (
                               <div className="mt-4">
@@ -642,9 +855,18 @@ function CareerRecommendations() {
                                           key={`${project}-${projectIndex}`}
                                           className="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
                                         >
-                                          <span>
-                                            • {project}
-                                          </span>
+                                          <div>
+                                            <span>
+                                              • {project}
+                                            </span>
+
+                                            {matchingGap?.skill_gap_id && (
+                                              <p className="mt-1 text-xs font-semibold text-pink-700">
+                                                Addresses skill gap:{' '}
+                                                {matchingGap.skill}
+                                              </p>
+                                            )}
+                                          </div>
 
                                           {createdProjects.has(
                                             projectKey,
@@ -658,7 +880,7 @@ function CareerRecommendations() {
                                               onClick={() =>
                                                 handleCreateProject(
                                                   project,
-                                                  findSkillGapForRoadmapPhase(phase),
+                                                  matchingGap,
                                                 )
                                               }
                                               disabled={
@@ -702,9 +924,18 @@ function CareerRecommendations() {
                                           key={`${task}-${taskIndex}`}
                                           className="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
                                         >
-                                          <span>
-                                            • {task}
-                                          </span>
+                                          <div>
+                                            <span>
+                                              • {task}
+                                            </span>
+
+                                            {matchingGap?.skill_gap_id && (
+                                              <p className="mt-1 text-xs font-semibold text-pink-700">
+                                                Addresses skill gap:{' '}
+                                                {matchingGap.skill}
+                                              </p>
+                                            )}
+                                          </div>
 
                                           {createdTasks.has(
                                             taskKey,

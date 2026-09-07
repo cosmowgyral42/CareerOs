@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -29,6 +30,12 @@ const IMPORTANCE = [
 ];
 
 function SkillGaps() {
+  const highlightedGapRef = useRef(null);
+  const selectedSkillGapId = Number(
+    new URLSearchParams(window.location.search).get(
+      'skillGapId',
+    ),
+  );
   const [skillGaps, setSkillGaps] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -189,18 +196,33 @@ function SkillGaps() {
         <div className="grid gap-5 lg:grid-cols-2">
           {skillGaps.map((gap) => (
             <article
+              ref={
+                gap.id === selectedSkillGapId
+                  ? highlightedGapRef
+                  : null
+              }
               key={gap.id}
-              className="app-card app-card-hover group p-6"
+              className={`app-card app-card-hover group p-6 ${
+                gap.id === selectedSkillGapId
+                  ? 'border-2 border-pink-400 bg-pink-50/40 shadow-lg'
+                  : ''
+              }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-pink-500">
-                    Skill #{gap.skill_id}
+                    Skill
                   </p>
 
                   <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                    Skill gap
+                    {gap.skill_name || `Skill #${gap.skill_id}`}
                   </h2>
+
+                  {gap.id === selectedSkillGapId && (
+                    <span className="mt-2 inline-flex rounded-full bg-pink-100 px-3 py-1 text-xs font-bold text-pink-700">
+                      Selected from Career Recommendations
+                    </span>
+                  )}
                 </div>
 
                 <span className="badge-accent rounded-full px-3 py-1 text-xs font-bold">
