@@ -1,5 +1,5 @@
 from typing import Annotated
-
+from app.services.resume_analysis_service import MAX_RESUME_SIZE
 from fastapi import (
     APIRouter,
     File,
@@ -34,6 +34,11 @@ async def create_resume_analysis(
     file: Annotated[UploadFile, File(...)],
     job_description: Annotated[str | None, Form()] = None,
 ):
+    if file.size is not None and file.size > MAX_RESUME_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Resume file must be 5 MB or smaller.",
+        )
     content = await file.read()
 
     try:

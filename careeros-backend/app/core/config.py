@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
+    frontend_origin: str = "http://localhost:5173"
 
     openrouter_api_key: str | None = None
 

@@ -13,7 +13,7 @@ from app.services.ai_usage_service import (
 from app.utils.text_analysis import extract_resume_text
 
 
-MAX_RESUME_SIZE = 10 * 1024 * 1024
+MAX_RESUME_SIZE = 5 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = {
     ".pdf",
@@ -37,7 +37,7 @@ def _validate_resume_file(
 
     if len(content) > MAX_RESUME_SIZE:
         raise ValueError(
-            "Resume file must be 10 MB or smaller."
+            "Resume file must be 5 MB or smaller."
         )
 
     normalized_name = filename.strip().lower()
