@@ -9,7 +9,7 @@ import AppLayout from '../layouts/AppLayout.jsx';
 
 import Landing from '../pages/landing';
 import Login from '../pages/auth/login.jsx';
-import Register from '../pages/auth/Register.jsx';
+import Register from '../pages/auth/register.jsx';
 
 import Dashboard from '../pages/dashboard/dashboard';
 import Goals from '../pages/goals/Goals';
