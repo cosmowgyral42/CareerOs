@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import Sidebar from '../components/layout/Sidebar';
-import Topbar from '../components/layout/Topbar';
+import Sidebar from '../components/layout/sidebar.jsx';
+import Topbar from '../components/layout/topbar.jsx';
 import { useAuth } from '../context/useAuth';
 
 function AppLayout() {
