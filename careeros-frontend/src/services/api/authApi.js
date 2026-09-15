@@ -5,7 +5,10 @@ import apiClient, {
 import { setToken } from './authStorage';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD
+    ? 'https://careeros-j87j.onrender.com'
+    : 'http://127.0.0.1:8000');
 
 export async function registerUser(userData) {
   return apiClient.post(
