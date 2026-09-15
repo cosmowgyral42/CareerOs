@@ -12,7 +12,20 @@ def create(db: Session, user_id: int, data: dict) -> Project:
     db.refresh(project)
 
     return project
+def create_without_commit(
+    db: Session,
+    user_id: int,
+    data: dict,
+) -> Project:
+    project = Project(
+        user_id=user_id,
+        **data,
+    )
 
+    db.add(project)
+    db.flush()
+
+    return project
 
 def get_by_id(
     db: Session,

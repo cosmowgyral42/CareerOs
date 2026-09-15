@@ -31,7 +31,29 @@ def create_project(
         project_data,
     )
 
-
+@router.post(
+    "/from-skill-gap/{skill_gap_id}",
+    response_model=ProjectResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_project_from_skill_gap(
+    skill_gap_id: int,
+    project_data: ProjectCreate,
+    db: DatabaseSession,
+    current_user: CurrentUser,
+):
+    try:
+        return project_service.create_project_for_skill_gap(
+            db,
+            user_id=current_user.id,
+            skill_gap_id=skill_gap_id,
+            project_data=project_data,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
 @router.get("", response_model=list[ProjectResponse])
 def get_projects(
     db: DatabaseSession,

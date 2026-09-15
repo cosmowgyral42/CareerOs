@@ -9,6 +9,58 @@ const API_BASE_URL =
   'http://127.0.0.1:8000';
 
 
+function getNonEmptyString(value) {
+  return typeof value === 'string' && value.trim()
+    ? value.trim()
+    : null;
+}
+
+
+export function getErrorMessage(
+  data,
+  fallbackMessage,
+) {
+  const errorMessage = getNonEmptyString(
+    data?.error?.message,
+  );
+
+  if (errorMessage) {
+    return errorMessage;
+  }
+
+  const detailMessage = getNonEmptyString(
+    data?.detail,
+  );
+
+  if (detailMessage) {
+    return detailMessage;
+  }
+
+  if (Array.isArray(data?.detail)) {
+    const validationMessages = data.detail
+      .map((item) => {
+        if (typeof item === 'object' && item !== null) {
+          return (
+            getNonEmptyString(item.msg) ||
+            getNonEmptyString(item.message)
+          );
+        }
+
+        return getNonEmptyString(item);
+      })
+      .filter(Boolean);
+
+    if (validationMessages.length) {
+      return validationMessages.join('; ');
+    }
+  }
+
+  const message = getNonEmptyString(data?.message);
+
+  return message || fallbackMessage;
+}
+
+
 async function request(
   endpoint,
   options = {},
@@ -18,7 +70,6 @@ async function request(
   const headers = new Headers(
     options.headers || {},
   );
-
 
   if (
     options.body &&
@@ -31,7 +82,6 @@ async function request(
     );
   }
 
-
   if (token) {
     headers.set(
       'Authorization',
@@ -39,21 +89,42 @@ async function request(
     );
   }
 
+  let response;
 
-  const response = await fetch(
-    `${API_BASE_URL}${endpoint}`,
-    {
-      ...options,
-      headers,
-    },
-  );
+  try {
+    response = await fetch(
+      `${API_BASE_URL}${endpoint}`,
+      {
+        ...options,
+        headers,
+      },
+    );
+  } catch {
+    throw new Error(
+      'Unable to connect to the CareerOS server.',
+    );
+  }
 
+  if (
+    response.status === 204 ||
+    response.headers.get('content-length') === '0'
+  ) {
+    if (!response.ok) {
+      throw new Error(
+        getErrorMessage(
+          null,
+          `Request failed with status ${response.status}.`,
+        ),
+      );
+    }
+
+    return null;
+  }
 
   const contentType =
     response.headers.get(
       'content-type',
     ) || '';
-
 
   const data =
     contentType.includes(
@@ -62,20 +133,22 @@ async function request(
       ? await response.json()
       : null;
 
-
   if (!response.ok) {
     if (response.status === 401) {
       removeToken();
     }
 
-    const message =
-      data?.detail ||
-      data?.message ||
-      `Request failed with status ${response.status}.`;
+    const error = new Error(
+      getErrorMessage(
+        data,
+        `Request failed with status ${response.status}.`,
+      ),
+    );
 
-    throw new Error(message);
+    error.status = response.status;
+
+    throw error;
   }
-
 
   return data;
 }

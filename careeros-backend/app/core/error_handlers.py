@@ -82,7 +82,11 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=exc.status_code,
             content={
                 "error": {
-                    "code": ErrorCode.INTERNAL_SERVER_ERROR,
+                    "code": (
+                        ErrorCode.AUTH_UNAUTHORIZED
+                        if exc.status_code == status.HTTP_401_UNAUTHORIZED
+                        else ErrorCode.INTERNAL_SERVER_ERROR
+                    ),
                     "message": str(exc.detail),
                 }
             },

@@ -8,10 +8,10 @@ function Landing() {
       <div className="mx-auto flex min-h-[80vh] max-w-6xl items-center">
         <div className="w-full overflow-hidden rounded-3xl border border-[#E9E4EA] bg-white shadow-sm">
           <div className="relative px-8 py-16 sm:px-12 lg:px-16">
-            <div className="absolute -right-32 -top-32 h-80 w-80 rounded-full bg-violet-100/60 blur-3xl" />
+            <div className="absolute -right-32 -top-32 h-80 w-80 rounded-full bg-pink-100/60 blur-3xl" />
 
             <div className="relative max-w-3xl">
-              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-violet-600">
+              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-pink-600">
                 Career intelligence platform
               </p>
 

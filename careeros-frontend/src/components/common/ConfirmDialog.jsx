@@ -14,15 +14,19 @@ function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
     >
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+      <div className="w-full max-w-md animate-[fadeIn_180ms_ease-out] rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl sm:p-7">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-xl">
+          ⚠️
+        </div>
+
         <h2
           id="confirm-dialog-title"
-          className="text-lg font-bold text-slate-900"
+          className="mt-5 text-xl font-bold tracking-tight text-slate-900"
         >
           {title}
         </h2>
@@ -31,12 +35,12 @@ function ConfirmDialog({
           {message}
         </p>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-secondary w-full sm:w-auto"
           >
             {cancelLabel}
           </button>
@@ -45,10 +49,10 @@ function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {isLoading
-              ? 'Deleting...'
+              ? 'Processing...'
               : confirmLabel}
           </button>
         </div>

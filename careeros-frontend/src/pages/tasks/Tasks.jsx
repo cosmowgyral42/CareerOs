@@ -199,7 +199,7 @@ function Tasks() {
   return (
     <section className="space-y-6">
       <div>
-        <p className="text-sm font-semibold text-violet-600">
+        <p className="text-sm font-semibold text-pink-600">
           Career workspace
         </p>
 
@@ -247,7 +247,7 @@ function Tasks() {
                   setTitle(event.target.value)
                 }
                 placeholder="Build authentication API"
-                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
               />
             </div>
 
@@ -267,7 +267,7 @@ function Tasks() {
                 }
                 rows={4}
                 placeholder="What needs to be completed?"
-                className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
               />
             </div>
 
@@ -322,7 +322,7 @@ function Tasks() {
                               event.target.value,
                             )
                           }
-                          className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                          className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                         />
                       </div>
 
@@ -343,7 +343,7 @@ function Tasks() {
                             )
                           }
                           rows={3}
-                          className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                          className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                         />
                       </div>
 
@@ -353,7 +353,7 @@ function Tasks() {
                           onClick={() =>
                             handleUpdate(task.id)
                           }
-                          className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white hover:bg-violet-700"
+                          className="rounded-xl bg-pink-600 px-4 py-2 text-sm font-bold text-white hover:bg-pink-700"
                         >
                           Save changes
                         </button>
@@ -419,7 +419,7 @@ function Tasks() {
                           onClick={() =>
                             startEditing(task)
                           }
-                          className="rounded-xl bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-100"
+                          className="rounded-xl bg-pink-50 px-3 py-2 text-xs font-bold text-pink-700 transition hover:bg-pink-100"
                         >
                           Edit
                         </button>

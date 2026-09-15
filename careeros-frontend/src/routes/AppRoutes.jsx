@@ -5,18 +5,18 @@ import {
   Routes,
 } from 'react-router-dom';
 
-import AppLayout from '../layouts/AppLayout';
+import AppLayout from '../layouts/AppLayout.jsx';
 
 import Landing from '../pages/landing';
-import Login from '../pages/auth/login';
-import Register from '../pages/auth/register';
+import Login from '../pages/auth/login.jsx';
+import Register from '../pages/auth/register.jsx';
 
 import Dashboard from '../pages/dashboard/dashboard';
-import Goals from '../pages/goals/goals';
-import Tasks from '../pages/tasks/tasks';
+import Goals from '../pages/goals/Goals';
+import Tasks from '../pages/tasks/Tasks';
 import Projects from '../pages/projects/Projects';
-import Resources from '../pages/resources/resources';
-import Applications from '../pages/applications/applications';
+import Resources from '../pages/resources/Resources';
+import Applications from '../pages/applications/Applications';
 import Skills from '../pages/skills/skills';
 import SkillGaps from '../pages/skill-gaps/SkillGaps';
 import CareerTargets from '../pages/career-targets/CareerTargets';

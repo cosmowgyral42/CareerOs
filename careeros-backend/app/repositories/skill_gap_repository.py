@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.skill_gap import SkillGap
 
@@ -27,11 +27,49 @@ def get_by_id(
     user_id: int,
 ) -> SkillGap | None:
     return db.scalar(
-        select(SkillGap).where(
+        select(SkillGap)
+        .options(joinedload(SkillGap.skill))
+        .where(
             SkillGap.id == skill_gap_id,
             SkillGap.user_id == user_id,
         )
     )
+
+
+def get_by_identity(
+    db: Session,
+    *,
+    user_id: int,
+    career_target_id: int,
+    skill_id: int,
+) -> SkillGap | None:
+    return db.scalar(
+        select(SkillGap).where(
+            SkillGap.user_id == user_id,
+            SkillGap.career_target_id == career_target_id,
+            SkillGap.skill_id == skill_id,
+        )
+    )
+
+
+def add(
+    db: Session,
+    *,
+    user_id: int,
+    career_target_id: int,
+    skill_id: int,
+    importance: str,
+) -> SkillGap:
+    skill_gap = SkillGap(
+        user_id=user_id,
+        career_target_id=career_target_id,
+        skill_id=skill_id,
+        importance=importance,
+    )
+
+    db.add(skill_gap)
+
+    return skill_gap
 
 
 def get_all_by_user(
@@ -40,6 +78,7 @@ def get_all_by_user(
 ) -> list[SkillGap]:
     statement = (
         select(SkillGap)
+        .options(joinedload(SkillGap.skill))
         .where(SkillGap.user_id == user_id)
         .order_by(SkillGap.created_at.desc())
     )

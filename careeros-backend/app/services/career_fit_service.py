@@ -4,7 +4,10 @@ from sqlalchemy.orm import Session
 
 from app.models.career_target import CareerTarget
 from app.repositories import career_fit_repository
-from app.services.ai_career_fit_service import analyze_career_fit
+from app.services import skill_gap_service
+from app.services.ai_career_fit_service import (
+    analyze_career_fit,
+)
 from app.services.ai_usage_service import (
     refund_ai_call,
     require_ai_call,
@@ -21,12 +24,7 @@ def analyze_career_fit_for_user(
 ):
     usage_date = datetime.now(timezone.utc).date()
 
-    # Reserve exactly ONE call from the shared CareerOS AI quota.
-    require_ai_call(
-        db,
-        user_id,
-        usage_date,
-    )
+    require_ai_call(db, user_id, usage_date)
 
     try:
         result = analyze_career_fit(
@@ -60,7 +58,35 @@ def analyze_career_fit_for_user(
             ],
         ]
 
-        return career_fit_repository.create_job_match(
+        synchronized_skill_gaps = (
+            skill_gap_service
+            .synchronize_ai_skill_gaps(
+                db,
+                user_id=user_id,
+                career_target_id=career_target.id,
+                ai_skill_gaps=result.skill_gaps,
+            )
+        )
+
+        for skill_gap in skill_gaps:
+            normalized_name = (
+                skill_gap["skill"]
+                .strip()
+                .casefold()
+            )
+
+            persisted_skill_gap = (
+                synchronized_skill_gaps.get(
+                    normalized_name
+                )
+            )
+
+            if persisted_skill_gap is not None:
+                skill_gap["skill_gap_id"] = (
+                    persisted_skill_gap.id
+                )
+
+        job_match = career_fit_repository.add_job_match(
             db,
             user_id=user_id,
             career_target_id=career_target.id,
@@ -78,12 +104,12 @@ def analyze_career_fit_for_user(
             recommendations=recommendations,
         )
 
+        db.commit()
+        db.refresh(job_match)
+
+        return job_match
+
     except Exception:
-        # Something failed after quota reservation.
-        # Return that AI call to the user.
-        refund_ai_call(
-            db,
-            user_id,
-            usage_date,
-        )
+        db.rollback()
+        refund_ai_call(db, user_id, usage_date)
         raise

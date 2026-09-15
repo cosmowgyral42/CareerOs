@@ -77,7 +77,7 @@ function Register() {
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center justify-center">
         <section className="w-full max-w-md">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-200/50 sm:p-9">
-            <p className="text-sm font-semibold text-violet-600">
+            <p className="text-sm font-semibold text-pink-600">
               CareerOS
             </p>
 
@@ -117,7 +117,7 @@ function Register() {
                   }
                   placeholder="Your name"
                   required
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
 
@@ -139,7 +139,7 @@ function Register() {
                   }
                   placeholder="you@example.com"
                   required
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
 
@@ -162,7 +162,7 @@ function Register() {
                   }
                   placeholder="At least 8 characters"
                   required
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
                 />
               </div>
 
@@ -181,7 +181,7 @@ function Register() {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-bold text-violet-600 hover:text-violet-700"
+                className="font-bold text-pink-600 hover:text-pink-700"
               >
                 Sign in
               </Link>

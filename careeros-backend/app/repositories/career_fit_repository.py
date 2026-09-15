@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.job_match import JobMatch
 
 
-def create_job_match(
+def add_job_match(
     db: Session,
     *,
     user_id: int,
@@ -42,6 +42,20 @@ def create_job_match(
     )
 
     db.add(job_match)
+    db.flush()
+
+    return job_match
+
+
+def create_job_match(
+    db: Session,
+    **kwargs,
+) -> JobMatch:
+    job_match = add_job_match(
+        db,
+        **kwargs,
+    )
+
     db.commit()
     db.refresh(job_match)
 

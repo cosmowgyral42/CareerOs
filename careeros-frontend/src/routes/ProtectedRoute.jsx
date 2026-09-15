@@ -18,7 +18,7 @@ function ProtectedRoute() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#F8F9FC]">
         <div className="text-center">
-          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" />
+          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-pink-600" />
 
           <p className="mt-4 text-sm font-medium text-slate-500">
             Loading CareerOS...

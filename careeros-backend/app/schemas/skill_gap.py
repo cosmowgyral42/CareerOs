@@ -48,6 +48,7 @@ class SkillGapResponse(BaseModel):
     user_id: int
     career_target_id: int
     skill_id: int
+    skill_name: str
     goal_id: int | None
     status: str
     importance: str

@@ -14,7 +14,29 @@ def create_task(task_data: TaskCreate, db: DatabaseSession, current_user: Curren
         return task_service.create_task(db, current_user.id, task_data)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-
+@router.post(
+    "/from-skill-gap/{skill_gap_id}",
+    response_model=TaskResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_task_from_skill_gap(
+    skill_gap_id: int,
+    task_data: TaskCreate,
+    db: DatabaseSession,
+    current_user: CurrentUser,
+):
+    try:
+        return task_service.create_task_for_skill_gap(
+            db,
+            user_id=current_user.id,
+            skill_gap_id=skill_gap_id,
+            task_data=task_data,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
 
 @router.get("", response_model=list[TaskResponse])
 def get_tasks(db: DatabaseSession, current_user: CurrentUser):

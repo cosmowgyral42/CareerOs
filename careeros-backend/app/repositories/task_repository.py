@@ -10,7 +10,20 @@ def create(db: Session, user_id: int, data: dict) -> Task:
     db.commit()
     db.refresh(task)
     return task
+def create_without_commit(
+    db: Session,
+    user_id: int,
+    data: dict,
+) -> Task:
+    task = Task(
+        user_id=user_id,
+        **data,
+    )
 
+    db.add(task)
+    db.flush()
+
+    return task
 
 def get_by_id(db: Session, task_id: int, user_id: int) -> Task | None:
     return db.scalar(
@@ -58,3 +71,15 @@ def count_by_user_and_status(
         statement = statement.where(Task.status == status)
 
     return db.scalar(statement) or 0
+
+def update_without_commit(
+    db: Session,
+    task: Task,
+    data: dict,
+) -> Task:
+    for field, value in data.items():
+        setattr(task, field, value)
+
+    db.flush()
+
+    return task

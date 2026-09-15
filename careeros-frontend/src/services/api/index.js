@@ -84,7 +84,7 @@ export {
   loginUser,
   registerUser,
   getCurrentUser,
-} from './authapi';
+} from './authApi';
 
 export {
   getMyProfile,
@@ -96,6 +96,9 @@ export {
   getCareerRecommendations,
   createCareerRecommendation,
   completeCareerRecommendation,
+  createTaskFromSkillGap,
+  createProjectFromSkillGap,
+  getCareerFitHistory,
 } from './careerRecommendationsApi';
 
 

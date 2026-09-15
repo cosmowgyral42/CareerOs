@@ -11,28 +11,22 @@ class CareerFitAnalyzeRequest(BaseModel):
 
 
 class CareerFitSkillGap(BaseModel):
+    skill_gap_id: int | None = None
     skill: str
-
     importance: str
-
     reason: str
 
 
 class CareerFitRoadmapPhase(BaseModel):
     title: str
-
     objective: str
-
     skills: list[str]
-
     recommended_projects: list[str]
-
     recommended_tasks: list[str]
 
 
 class AICareerFitResult(BaseModel):
     company_name: str
-
     job_title: str
 
     match_score: int = Field(
@@ -61,7 +55,5 @@ class CareerFitResponse(
     AICareerFitResult
 ):
     id: int
-
     career_target_id: int
-
     job_description: str

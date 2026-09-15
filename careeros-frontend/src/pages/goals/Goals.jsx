@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   createGoal,
@@ -35,6 +39,7 @@ function Goals() {
     useState(false);
 
   const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
 
   const [reloadKey, setReloadKey] =
     useState(0);
@@ -77,6 +82,18 @@ function Goals() {
     };
   }, [reloadKey]);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        window.clearTimeout(
+          toastTimerRef.current,
+        );
+      }
+    };
+  }, []);
+
+
+
   function retryLoadGoals() {
     setIsLoading(true);
     setError('');
@@ -88,15 +105,23 @@ function Goals() {
     message,
     type = 'success',
   ) {
-    setToast({
-      message,
-      type,
-    });
+    if (toastTimerRef.current) {
+      window.clearTimeout(
+        toastTimerRef.current,
+    );
+  }
 
+  setToast({
+    message,
+    type,
+  });
+
+  toastTimerRef.current =
     window.setTimeout(() => {
       setToast(null);
+      toastTimerRef.current = null;
     }, 3000);
-  }
+}
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -330,7 +355,7 @@ function Goals() {
       />
 
       <section>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-600">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-pink-600">
           Career planning
         </p>
 
@@ -387,7 +412,7 @@ function Goals() {
                 maxLength={200}
                 required
                 placeholder="Become a backend engineer"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
               />
             </div>
 
@@ -407,7 +432,7 @@ function Goals() {
                 maxLength={5000}
                 rows={4}
                 placeholder="Build production-quality backend systems."
-                className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
               />
             </div>
 
@@ -425,7 +450,7 @@ function Goals() {
                 type="date"
                 value={form.target_date}
                 onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
               />
             </div>
 
@@ -505,7 +530,7 @@ function Goals() {
                           goal.status ===
                           'completed'
                             ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-violet-100 text-violet-700'
+                            : 'bg-pink-100 text-pink-700'
                         }`}
                       >
                         {goal.status ===

@@ -1,20 +1,16 @@
 function EmptyState({
-  title = 'Nothing here yet',
-  description = 'There is no data to display.',
+  title,
+  message,
   action,
 }) {
   return (
-    <div className="flex min-h-[250px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-violet-50 text-xl">
-        📭
-      </div>
-
-      <h3 className="text-base font-semibold text-slate-900">
+    <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-pink-200 bg-white p-8 text-center">
+      <h2 className="text-2xl font-bold text-[#29252D]">
         {title}
-      </h3>
+      </h2>
 
-      <p className="mt-2 max-w-sm text-sm text-slate-500">
-        {description}
+      <p className="mt-3 max-w-md text-sm leading-6 text-slate-500">
+        {message}
       </p>
 
       {action && (
